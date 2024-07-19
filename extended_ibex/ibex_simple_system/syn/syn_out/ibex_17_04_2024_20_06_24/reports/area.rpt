@@ -1,0 +1,91 @@
+
+55. Printing statistics.
+
+=== ibex_top ===
+
+   Number of wires:              32483
+   Number of wire bits:          33096
+   Number of public wires:        4618
+   Number of public wire bits:    5231
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              29711
+     $_DLATCH_N_                    33
+     AND2_X1                       920
+     AND2_X2                         6
+     AND3_X1                       347
+     AND3_X2                         1
+     AND3_X4                         1
+     AND4_X1                       386
+     AND4_X2                         2
+     AOI211_X1                     251
+     AOI211_X2                       1
+     AOI21_X1                     2447
+     AOI21_X2                       23
+     AOI21_X4                       12
+     AOI221_X1                     166
+     AOI222_X1                     187
+     AOI222_X2                       2
+     AOI22_X1                     1291
+     AOI22_X2                        3
+     BUF_X1                       1146
+     BUF_X2                         97
+     BUF_X4                        146
+     BUF_X8                         10
+     CLKBUF_X1                     261
+     CLKBUF_X2                       8
+     CLKBUF_X3                       1
+     DFFR_X1                      2086
+     DFFS_X1                         8
+     DFF_X1                        273
+     DLH_X1                        992
+     INV_X1                       1377
+     INV_X2                          4
+     MUX2_X1                      1740
+     MUX2_X2                        10
+     NAND2_X1                     3544
+     NAND2_X2                       10
+     NAND2_X4                        2
+     NAND3_X1                      718
+     NAND3_X2                        3
+     NAND4_X1                      335
+     NAND4_X2                        2
+     NAND4_X4                        1
+     NOR2_X1                      2511
+     NOR2_X2                         3
+     NOR2_X4                         1
+     NOR3_X1                       562
+     NOR3_X2                         2
+     NOR3_X4                         3
+     NOR4_X1                       197
+     NOR4_X2                        26
+     NOR4_X4                         4
+     OAI211_X1                     224
+     OAI211_X2                       2
+     OAI211_X4                       1
+     OAI21_X1                     2543
+     OAI21_X2                       36
+     OAI21_X4                       10
+     OAI221_X1                      67
+     OAI222_X1                      32
+     OAI22_X1                      107
+     OAI33_X1                       17
+     OR2_X1                        514
+     OR2_X2                          5
+     OR2_X4                          6
+     OR3_X1                        457
+     OR3_X2                          3
+     OR3_X4                          3
+     OR4_X1                         34
+     OR4_X2                          3
+     OR4_X4                          1
+     XNOR2_X1                     2224
+     XNOR2_X2                        3
+     XOR2_X1                      1255
+     XOR2_X2                         2
+
+   Area for cell type $_DLATCH_N_ is unknown!
+
+   Chip area for module '\ibex_top': 45365.236000
+

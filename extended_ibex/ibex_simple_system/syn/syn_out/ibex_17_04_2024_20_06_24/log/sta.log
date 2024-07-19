@@ -1,0 +1,71 @@
+OpenSTA 2.4.0 7507ce1c51 Copyright (c) 2021, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+=================== Flow Vars ===================
+Path to cell library: /home/alex/Desktop/ibex_tools/synthesis/nangate45/lib/NangateOpenCellLibrary_typical.lib
+top module: ibex_top (default)
+Output directory for synthesis: syn_out/ibex_17_04_2024_20_06_24
+Pre-mapping netlist out: ./syn_out/ibex_17_04_2024_20_06_24/generated/ibex_top.pre_map.v (default)
+netlist out: ./syn_out/ibex_17_04_2024_20_06_24/generated/ibex_top_netlist.v (default)
+Synth config file: ibex_top_lr_synth_conf.tcl (default)
+Report output directory: ./syn_out/ibex_17_04_2024_20_06_24/reports (default)
+flatten: Enabled
+timing run: Enabled
+Enable branch target ALU in Ibex: Disabled
+Enable writeback stage in Ibex: Disabled
+Bitmanip extenion setting for Ibex (see ibex_pkg::rv32b_e for permitted values. Enum names are not supported in Yosys.): 0 (default)
+Multiplier extension setting for Ibex (see ibex_pkg::rv32m_e for permitted values. Enum names are not supported in Yosys.): 2 (default)
+Register file implementation selection for Ibex (see ibex_pkg::regfile_e for permitted values. Enum names are not supported in Yosys.): 2 (default)
+Checkpoint
+Name of cell library: nangate
+Input SDC file: ibex_top.nangate.sdc (default)
+Input SDC file for ABC: ibex_top_abc.nangate.sdc (default)
+Output SDC file: ./syn_out/ibex_17_04_2024_20_06_24/generated/ibex_top.nangate.out.sdc (default)
+STA netlist out: ./syn_out/ibex_17_04_2024_20_06_24/generated/ibex_top_netlist.sta.v (default)
+STA paths reported per group: 1000 (default)
+STA paths reported in overall report: 1000 (default)
+clock period: 4000.0 ps
+=================================================
+ _                  ______  _____  _____  _____  
+| |                 | ___ \|_   _|/  ___|/  __ \ 
+| |  ___  __      __| |_/ /  | |  \ `--. | /  \/ 
+| | / _ \ \ \ /\ / /|    /   | |   `--. \| |     
+| || (_) | \ V  V / | |\ \  _| |_ /\__/ /| \__/\ 
+|_| \___/   \_/\_/  \_| \_| \___/ \____/  \____/ 
+                                                 
+                                                 
+                            _    _               
+                           | |  | |              
+         ___  _   _  _ __  | |_ | |__            
+        / __|| | | || '_ \ | __|| '_ \           
+        \__ \| |_| || | | || |_ | | | |          
+        |___/ \__, ||_| |_| \__||_| |_|          
+               __/ |                             
+              |___/                              
+
+******  o p e n   t o   t h e   c o r e  ******* 
+
++--------------------------------------------------+
+|  _____                      _____  _____   ___   |
+| |  _  |                    /  ___||_   _| / _ \  |
+| | | | | _ __    ___  _ __  \ `--.   | |  / /_\ \ |
+| | | | || '_ \  / _ \| '_ \  `--. \  | |  |  _  | |
+| \ \_/ /| |_) ||  __/| | | |/\__/ /  | |  | | | | |
+|  \___/ | .__/  \___||_| |_|\____/   \_/  \_| |_/ |
+|        | |                                       |
+|        |_|                                       |
++--------------------------------------------------+
+
+Warning: ./syn_out/ibex_17_04_2024_20_06_24/generated/ibex_top_netlist.sta.v line 177412, module $_DLATCH_N_ not found. Creating black box for \core_clock_gate_i.en_latch_reg .
+Reporting clk_i to ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/overall.rpt and ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/overall.csv.rpt
+reg2reg
+Reporting reg2reg to ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/reg2reg.rpt and ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/reg2reg.csv.rpt
+reg2out
+Reporting reg2out to ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/reg2out.rpt and ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/reg2out.csv.rpt
+in2reg
+Reporting in2reg to ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/in2reg.rpt and ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/in2reg.csv.rpt
+in2out
+Reporting in2out to ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/in2out.rpt and ./syn_out/ibex_17_04_2024_20_06_24/reports/timing/in2out.csv.rpt

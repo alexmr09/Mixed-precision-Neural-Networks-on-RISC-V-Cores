@@ -1,0 +1,1325 @@
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[30] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.06    1.21 ^ _32471_/Z (BUF_X1)
+   0.02    1.23 v _32487_/ZN (NOR2_X1)
+   0.06    1.29 ^ _32488_/ZN (AOI21_X1)
+   0.05    1.34 v _32489_/ZN (OAI21_X1)
+   0.00    1.34 v instr_addr_o[30] (out)
+           1.34   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.34   data arrival time
+---------------------------------------------------------
+          -0.54   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[28] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.06    1.21 ^ _32471_/Z (BUF_X1)
+   0.03    1.24 v _32472_/ZN (AOI21_X1)
+   0.08    1.32 ^ _32473_/ZN (OAI21_X1)
+   0.00    1.32 ^ instr_addr_o[28] (out)
+           1.32   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.32   data arrival time
+---------------------------------------------------------
+          -0.52   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[24] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.01    1.16 v _32434_/ZN (NOR2_X1)
+   0.06    1.22 ^ _32435_/ZN (AOI21_X1)
+   0.05    1.27 v _32436_/ZN (OAI21_X1)
+   0.00    1.27 v instr_addr_o[24] (out)
+           1.27   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.27   data arrival time
+---------------------------------------------------------
+          -0.47   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[22] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.01    1.16 v _32417_/ZN (NOR2_X1)
+   0.06    1.22 ^ _32418_/ZN (AOI21_X1)
+   0.05    1.27 v _32419_/ZN (OAI21_X1)
+   0.00    1.27 v instr_addr_o[22] (out)
+           1.27   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.27   data arrival time
+---------------------------------------------------------
+          -0.47   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[26] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.01    1.16 v _32452_/ZN (NOR2_X1)
+   0.06    1.22 ^ _32453_/ZN (AOI21_X1)
+   0.05    1.27 v _32454_/ZN (OAI21_X1)
+   0.00    1.27 v instr_addr_o[26] (out)
+           1.27   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.27   data arrival time
+---------------------------------------------------------
+          -0.47   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[20] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.03    1.18 v _32400_/ZN (AOI21_X1)
+   0.08    1.26 ^ _32401_/ZN (OAI21_X1)
+   0.00    1.26 ^ instr_addr_o[20] (out)
+           1.26   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.26   data arrival time
+---------------------------------------------------------
+          -0.46   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[19] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.06    1.15 ^ _32389_/Z (BUF_X1)
+   0.03    1.18 v _32390_/ZN (AOI21_X1)
+   0.08    1.26 ^ _32391_/ZN (OAI21_X1)
+   0.00    1.26 ^ instr_addr_o[19] (out)
+           1.26   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.26   data arrival time
+---------------------------------------------------------
+          -0.46   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[29] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.05    1.12 v _32163_/Z (BUF_X1)
+   0.02    1.14 ^ _32478_/ZN (NAND2_X1)
+   0.03    1.17 v _32480_/ZN (OAI21_X1)
+   0.08    1.25 v _32481_/Z (MUX2_X1)
+   0.00    1.25 v instr_addr_o[29] (out)
+           1.25   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.25   data arrival time
+---------------------------------------------------------
+          -0.45   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[31] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.05    1.12 v _32163_/Z (BUF_X1)
+   0.02    1.14 ^ _32494_/ZN (NAND2_X1)
+   0.02    1.17 v _32496_/ZN (OAI21_X1)
+   0.08    1.24 v _32497_/Z (MUX2_X1)
+   0.00    1.24 v instr_addr_o[31] (out)
+           1.24   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.24   data arrival time
+---------------------------------------------------------
+          -0.44   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[27] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.05    1.12 v _32163_/Z (BUF_X1)
+   0.05    1.17 ^ _32462_/ZN (OAI21_X1)
+   0.07    1.23 ^ _32463_/Z (MUX2_X1)
+   0.00    1.23 ^ instr_addr_o[27] (out)
+           1.23   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.23   data arrival time
+---------------------------------------------------------
+          -0.43   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[15] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.01    1.10 v _32351_/ZN (NOR2_X1)
+   0.06    1.16 ^ _32352_/ZN (AOI21_X1)
+   0.05    1.21 v _32353_/ZN (OAI21_X1)
+   0.00    1.21 v instr_addr_o[15] (out)
+           1.21   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.21   data arrival time
+---------------------------------------------------------
+          -0.41   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[13] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.01    1.10 v _32334_/ZN (NOR2_X1)
+   0.06    1.16 ^ _32335_/ZN (AOI21_X1)
+   0.05    1.20 v _32336_/ZN (OAI21_X1)
+   0.00    1.20 v instr_addr_o[13] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[17] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.01    1.10 v _32370_/ZN (NOR2_X1)
+   0.06    1.16 ^ _32371_/ZN (AOI21_X1)
+   0.05    1.20 v _32372_/ZN (OAI21_X1)
+   0.00    1.20 v instr_addr_o[17] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[23] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.02    1.10 ^ _32425_/ZN (NAND2_X1)
+   0.03    1.12 v _32427_/ZN (OAI21_X1)
+   0.08    1.20 v _32428_/Z (MUX2_X1)
+   0.00    1.20 v instr_addr_o[23] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[25] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.02    1.10 ^ _32443_/ZN (NAND2_X1)
+   0.03    1.12 v _32445_/ZN (OAI21_X1)
+   0.08    1.20 v _32446_/Z (MUX2_X1)
+   0.00    1.20 v instr_addr_o[25] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[21] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.02    1.10 ^ _32407_/ZN (NAND2_X1)
+   0.03    1.12 v _32409_/ZN (OAI21_X1)
+   0.08    1.20 v _32410_/Z (MUX2_X1)
+   0.00    1.20 v instr_addr_o[21] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[18] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 v _32162_/Z (BUF_X1)
+   0.02    1.10 ^ _32378_/ZN (NAND2_X1)
+   0.03    1.12 v _32380_/ZN (OAI21_X1)
+   0.08    1.20 v _32381_/Z (MUX2_X1)
+   0.00    1.20 v instr_addr_o[18] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_req_o (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.05    1.07 v _31080_/ZN (OAI221_X1)
+   0.05    1.12 v _31083_/ZN (AND4_X1)
+   0.01    1.14 ^ _31084_/ZN (INV_X1)
+   0.04    1.17 ^ _31085_/ZN (AND2_X1)
+   0.02    1.20 v _32166_/ZN (INV_X1)
+   0.00    1.20 v instr_req_o (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[11] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.07    1.09 ^ _32316_/Z (BUF_X1)
+   0.03    1.12 v _32317_/ZN (AOI21_X1)
+   0.08    1.20 ^ _32318_/ZN (OAI21_X1)
+   0.00    1.20 ^ instr_addr_o[11] (out)
+           1.20   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.20   data arrival time
+---------------------------------------------------------
+          -0.40   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[6] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.04    1.06 ^ _32264_/ZN (OR2_X1)
+   0.03    1.08 v _32266_/ZN (OAI21_X1)
+   0.08    1.16 v _32267_/Z (MUX2_X1)
+   0.00    1.16 v instr_addr_o[6] (out)
+           1.16   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.16   data arrival time
+---------------------------------------------------------
+          -0.36   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[10] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.02    1.05 ^ _32303_/ZN (NAND2_X1)
+   0.03    1.07 v _32305_/ZN (OAI21_X1)
+   0.08    1.15 v _32306_/Z (MUX2_X1)
+   0.00    1.15 v instr_addr_o[10] (out)
+           1.15   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.15   data arrival time
+---------------------------------------------------------
+          -0.35   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[16] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.02    1.05 ^ _32361_/ZN (NAND2_X1)
+   0.03    1.07 v _32363_/ZN (OAI21_X1)
+   0.08    1.15 v _32364_/Z (MUX2_X1)
+   0.00    1.15 v instr_addr_o[16] (out)
+           1.15   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.15   data arrival time
+---------------------------------------------------------
+          -0.35   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[12] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.02    1.05 ^ _32324_/ZN (NAND2_X1)
+   0.03    1.07 v _32326_/ZN (OAI21_X1)
+   0.08    1.15 v _32327_/Z (MUX2_X1)
+   0.00    1.15 v instr_addr_o[12] (out)
+           1.15   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.15   data arrival time
+---------------------------------------------------------
+          -0.35   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[14] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.02    1.05 ^ _32342_/ZN (NAND2_X1)
+   0.03    1.07 v _32344_/ZN (OAI21_X1)
+   0.08    1.15 v _32345_/Z (MUX2_X1)
+   0.00    1.15 v instr_addr_o[14] (out)
+           1.15   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.15   data arrival time
+---------------------------------------------------------
+          -0.35   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[3] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.04    1.06 v _32232_/ZN (AOI21_X1)
+   0.09    1.14 ^ _32234_/ZN (OAI21_X1)
+   0.00    1.14 ^ instr_addr_o[3] (out)
+           1.14   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.14   data arrival time
+---------------------------------------------------------
+          -0.34   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[7] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.04    1.06 v _32279_/ZN (AOI21_X1)
+   0.09    1.14 ^ _32280_/ZN (OAI21_X1)
+   0.00    1.14 ^ instr_addr_o[7] (out)
+           1.14   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.14   data arrival time
+---------------------------------------------------------
+          -0.34   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[9] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.20    1.02 ^ _31077_/ZN (NOR4_X1)
+   0.04    1.06 v _32297_/ZN (AOI21_X1)
+   0.09    1.14 ^ _32298_/ZN (OAI21_X1)
+   0.00    1.14 ^ instr_addr_o[9] (out)
+           1.14   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.14   data arrival time
+---------------------------------------------------------
+          -0.34   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[8] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.05    1.02 v _32161_/Z (BUF_X1)
+   0.05    1.07 ^ _32289_/ZN (OAI21_X1)
+   0.07    1.14 ^ _32290_/Z (MUX2_X1)
+   0.00    1.14 ^ instr_addr_o[8] (out)
+           1.14   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.14   data arrival time
+---------------------------------------------------------
+          -0.34   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[4] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.02    1.00 ^ _32242_/ZN (NAND2_X1)
+   0.03    1.02 v _32244_/ZN (OAI21_X1)
+   0.08    1.10 v _32245_/Z (MUX2_X1)
+   0.00    1.10 v instr_addr_o[4] (out)
+           1.10   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.10   data arrival time
+---------------------------------------------------------
+          -0.30   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[2] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.02    1.00 ^ _32208_/ZN (NAND2_X1)
+   0.03    1.02 v _32210_/ZN (OAI21_X1)
+   0.08    1.10 v _32212_/Z (MUX2_X1)
+   0.00    1.10 v instr_addr_o[2] (out)
+           1.10   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.10   data arrival time
+---------------------------------------------------------
+          -0.30   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: instr_addr_o[5] (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.02    0.74 ^ _31073_/ZN (AOI21_X1)
+   0.05    0.79 ^ _31074_/ZN (OR4_X1)
+   0.03    0.81 v _31075_/ZN (NOR2_X1)
+   0.11    0.92 v _32159_/ZN (OR4_X1)
+   0.05    0.97 v _32160_/Z (BUF_X1)
+   0.02    1.00 ^ _32253_/ZN (NAND2_X1)
+   0.02    1.02 v _32255_/ZN (OAI21_X1)
+   0.08    1.10 v _32257_/Z (MUX2_X1)
+   0.00    1.10 v instr_addr_o[5] (out)
+           1.10   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -1.20    0.80   output external delay
+           0.80   data required time
+---------------------------------------------------------
+           0.80   data required time
+          -1.10   data arrival time
+---------------------------------------------------------
+          -0.30   slack (VIOLATED)
+
+
+Startpoint: irq_fast_i[11] (input port clocked by clk_i_fast)
+Endpoint: core_sleep_o (output port clocked by clk_i_fast)
+Path Group: in2out
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_i_fast (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.40    0.40 v input external delay
+   0.00    0.40 v irq_fast_i[11] (in)
+   0.05    0.46 ^ _31055_/ZN (AOI22_X1)
+   0.01    0.47 v _31056_/ZN (INV_X1)
+   0.08    0.55 ^ _31057_/ZN (AOI221_X1)
+   0.03    0.58 v _31060_/ZN (NAND3_X1)
+   0.08    0.66 v _31068_/ZN (OR3_X1)
+   0.04    0.70 ^ _31069_/ZN (AOI21_X1)
+   0.02    0.72 v _31070_/ZN (NAND2_X1)
+   0.09    0.80 v _31090_/ZN (OR3_X1)
+   0.08    0.89 ^ _32942_/ZN (NOR2_X1)
+   0.00    0.89 ^ core_sleep_o (out)
+           0.89   data arrival time
+
+   2.00    2.00   clock clk_i_fast (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -0.80    1.20   output external delay
+           1.20   data required time
+---------------------------------------------------------
+           1.20   data required time
+          -0.89   data arrival time
+---------------------------------------------------------
+           0.31   slack (MET)
+
+
