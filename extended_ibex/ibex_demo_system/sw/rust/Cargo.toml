@@ -1,0 +1,17 @@
+# Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+members = [
+    "ibex-demo-system-pac",
+    "ibex-demo-system-hal",
+    "demo/hello_world",
+    "demo/led",
+    "demo/led_hal",
+    "demo/lcd_hal",
+    "demo/pwm_hal",
+]
+
+[profile.release]
+debug = true

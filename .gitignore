@@ -1,0 +1,9 @@
+# Ignore virtual environment directory
+mpq/.venv/
+
+# Ignore Python cache directory
+mpq/__pycache__/
+
+# Ignore generated image file
+mpq/pareto_space.png
+
