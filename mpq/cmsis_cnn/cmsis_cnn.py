@@ -28,8 +28,8 @@ X_test = (np.transpose(X_test, (0,3,1,2)) - 128.0)/255.0
 X_val = (np.transpose(X_val, (0,3,1,2)) - 128.0)/255.0
 
 BATCH_SIZE = 32
-epochs = 1
-lr = 0.0001
+epochs = [50, 25]
+lr = [0.0001, 0.00001]
 
 class CMSIS_CNN(nn.Module):
     def __init__(self):
