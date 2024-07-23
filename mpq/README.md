@@ -77,4 +77,4 @@ common.create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test,
 
 #### Notes
 - The parameters for epochs and learning rate can be either single values or lists of numbers, allowing for fine-tuning of the model.
-- Currently, the provided scripts do not support models with Residual connections or Depthwise Convolutions.
+- Currently, the provided scripts do not support models with Residual connections.
