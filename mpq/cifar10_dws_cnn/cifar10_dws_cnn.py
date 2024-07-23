@@ -29,8 +29,8 @@ X_test = (np.transpose(X_test, (0,3,1,2)))
 X_val = (np.transpose(X_val, (0,3,1,2)))
 
 BATCH_SIZE = 128
-epochs = 1
-lr = 0.0001
+epochs = [10, 10]
+lr = [0.001, 0.0001]
 
 class DepthwiseBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
