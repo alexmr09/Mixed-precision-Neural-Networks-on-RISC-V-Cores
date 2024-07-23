@@ -125,3 +125,13 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
         print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
         ibex_model = simulate_ibex.create_lenet_model(int_weights, int_og_bias, mul_vals, shift_vals)
         simulate_ibex.eval_sim_model(quant_net, ibex_model, test_loader)
+        
+    elif(name == 'cmsis_cnn'):
+        print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
+        ibex_model = simulate_ibex.create_cmsis_cnn_model(int_weights, int_og_bias, mul_vals, shift_vals)
+        simulate_ibex.eval_sim_model(quant_net, ibex_model, test_loader)
+
+    elif(name == 'cifar10_dws_cnn'):
+        print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
+        ibex_model = simulate_ibex.create_ibex_dws_model(int_weights, int_og_bias, mul_vals, shift_vals)
+        simulate_ibex.eval_sim_model(quant_net, ibex_model, test_loader)

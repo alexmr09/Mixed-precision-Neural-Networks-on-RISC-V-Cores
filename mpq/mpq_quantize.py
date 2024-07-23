@@ -11,6 +11,9 @@ from torch import nn, optim
 
 import brevitas.nn as qnn
 from brevitas.quant import *
+from brevitas.core.restrict_val import RestrictValueType
+
+from collections import defaultdict
 from torchinfo import summary
 
 def net_input_size(X_train):
@@ -202,7 +205,21 @@ def generate_sequences(length, values = [2, 4, 8]):
 
 def create_weight_confs(macc_per_layer):
     total_macc_opt = []
-    weights_per_layer = generate_sequences(len(macc_per_layer))
+    
+    cc = 0 
+    idx = []
+    
+    if(len(macc_per_layer) >= 6):
+        for i, mpl in enumerate(macc_per_layer):
+            if(mpl/max(macc_per_layer) < 0.05):
+                cc += 1
+                idx.append(i)
+    
+    weights_per_layer = generate_sequences(len(macc_per_layer) - cc)
+    
+    for w in weights_per_layer:
+        for i in idx:
+            w.insert(i, 8)
     
     for w_conf in weights_per_layer:
         macc = 0
@@ -234,24 +251,47 @@ def create_weight_confs(macc_per_layer):
 # Define a mapping from PyTorch layers to Brevitas layers
 def create_layer_mapping(bit_width):
     mapping = {
-        nn.Conv2d: lambda layer, bw: qnn.QuantConv2d(in_channels = layer.in_channels, 
-                                                    out_channels = layer.out_channels, 
-                                                    kernel_size = layer.kernel_size, 
-                                                    stride = layer.stride[0], 
-                                                    padding = layer.padding,
-                                                    bias = True,
-                                                    cache_inference_bias = True,
-                                                    bias_quant = Int32Bias,
-                                                    weight_bit_width = bw,
-                                                    weight_quant = Int8WeightPerTensorFloat),
+        nn.Conv2d: lambda layer, bw: (qnn.QuantConv2d(in_channels=layer.in_channels, 
+                                                        out_channels=layer.out_channels, 
+                                                        kernel_size=layer.kernel_size, 
+                                                        stride=layer.stride[0], 
+                                                        padding=layer.padding,
+                                                        groups=layer.groups,
+                                                        bias=True,
+                                                        cache_inference_bias=True,
+                                                        bias_quant=Int32Bias,
+                                                        weight_bit_width=bw,
+                                                        weight_quant=Int8WeightPerTensorFloat,
+                                                        weight_scaling_min_val=2e-16,
+                                                        restrict_scaling_type=RestrictValueType.LOG_FP,
+                                                        return_quant_tensor=True
+                                                        ) if layer.groups != layer.in_channels else (
+                                                            # Special case for depthwise convolutions
+                                        qnn.QuantConv2d(in_channels=layer.in_channels, 
+                                                                out_channels=layer.out_channels, 
+                                                                kernel_size=layer.kernel_size, 
+                                                                stride=layer.stride[0], 
+                                                                padding=layer.padding,
+                                                                groups=layer.groups,
+                                                                bias=True,
+                                                                cache_inference_bias=True,
+                                                                bias_quant=Int32Bias,
+                                                                weight_bit_width=8,  # Fixed bit width for depthwise convolutions
+                                                                weight_quant=Int8WeightPerTensorFloat,
+                                                                weight_scaling_min_val=2e-16,
+                                                                restrict_scaling_type=RestrictValueType.LOG_FP,
+                                                                return_quant_tensor=True))),
 
         nn.Linear: lambda layer, bw: qnn.QuantLinear(in_features = layer.in_features, 
                                                     out_features = layer.out_features, 
-                                                    cache_inference_bias = True, 
-                                                    weight_quant = Int8WeightPerTensorFloat,
+                                                     
+                                                    cache_inference_bias = True,
                                                     bias_quant = Int32Bias,
                                                     bias = True,
-                                                    weight_bit_width = bw),
+                                                    
+                                                    weight_quant = Int8WeightPerTensorFloat, 
+                                                    weight_bit_width = bw,
+                                                    return_quant_tensor=True),
 
         nn.ReLU: lambda _, bw: qnn.QuantReLU(bit_width = bw, 
                                             return_quant_tensor = True),
@@ -278,13 +318,11 @@ def convert_layer(layer, bit_width, layer_mapping):
         return layer
 
 # Function to convert a PyTorch model to a Brevitas model
-def convert_model(module, bit_widths, layer_mapping):
-    layer_idx = [0]
+def convert_model(module, bit_widths, layer_mapping, layer_idx = [0]):
     brevitas_module = nn.Sequential()
-
     for name, layer in module.named_children():
         if list(layer.children()):  # If the layer has children, recurse
-            brevitas_module.add_module(name, convert_model(layer, bit_widths, layer_mapping))
+            brevitas_module.add_module(name, convert_model(layer, bit_widths, layer_mapping, layer_idx))
         else:
             layer_type = type(layer)
             if layer_type in [nn.Conv2d, nn.Linear]:
@@ -293,6 +331,7 @@ def convert_model(module, bit_widths, layer_mapping):
             else:
                 bit_width = 8
             brevitas_module.add_module(name, convert_layer(layer, bit_width, layer_mapping))
+
     return brevitas_module
 
 class Quant_Model(nn.Module):
@@ -300,13 +339,15 @@ class Quant_Model(nn.Module):
         super(Quant_Model, self).__init__()
         if(input_sign):
             self.quant_inp = qnn.QuantIdentity(bit_width = 8, return_quant_tensor = True,
-                         act_quant = Uint8ActPerTensorFloat)
+                         act_quant = Uint8ActPerTensorFloat, scaling_min_val = 2e-16, 
+                                        restrict_scaling_type = RestrictValueType.LOG_FP)
     
         else:
             self.quant_inp = qnn.QuantIdentity(bit_width = 8, return_quant_tensor = True,
-                         act_quant = Int8ActPerTensorFloat)
+                         act_quant = Int8ActPerTensorFloat, scaling_min_val = 2e-16, 
+                                        restrict_scaling_type = RestrictValueType.LOG_FP)
 
-        self.sequential = convert_model(og_model, w, layer_mapping)
+        self.sequential = convert_model(og_model, w, layer_mapping, [0])
         self.o_quant =  qnn.QuantIdentity(bit_width = 8, return_quant_tensor = True)
     
     def forward(self, X):
@@ -314,7 +355,36 @@ class Quant_Model(nn.Module):
         X = self.sequential(X)
         X = self.o_quant(X)
         return F.log_softmax(X, dim = 1)
-        
+
+def count_layers_in_sequential(module):
+    # List to store the counts of Conv2d and Linear layers for each nn.Sequential module
+    sequential_counts = []
+
+    def _count_layers(submodule, prefix = ''):
+        if isinstance(submodule, nn.Sequential):
+            conv_count = 0
+            linear_count = 0
+            # Count Conv2d and Linear layers in the current nn.Sequential module
+            for child in submodule.children():
+                if isinstance(child, nn.Conv2d):
+                    conv_count += 1
+                elif isinstance(child, nn.Linear):
+                    linear_count += 1
+            # Append the counts to the list
+            sequential_counts.append((conv_count, linear_count))
+            # Recursively process children of the current nn.Sequential module
+            for name, child in submodule.named_children():
+                child_prefix = f"{prefix}.{name}" if prefix else name
+                _count_layers(child, child_prefix)
+        else:
+            # Process children of non-nn.Sequential modules
+            for name, child in submodule.named_children():
+                _count_layers(child, prefix)
+
+    _count_layers(module)
+    
+    return sequential_counts[1:]
+
 def train_quant_model(quant_net, train_loader, val_loader = None, device = 'cpu',
                       epochs = 20, lr = 0.0001):
     
@@ -392,6 +462,7 @@ def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, te
         device = 'cpu', epochs = 5, lr = 0.0001):
     
     sign = calculate_minimum(train_loader) >= 0
+    seq_counts = count_layers_in_sequential(og_model)
 
     if max_acc_drop is not None:
         print('\nDSE STARTING ... BINARY SEARCH')
@@ -402,6 +473,16 @@ def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, te
             mid = (low + high) // 2
             w = weights_per_layer[mid]
             
+            f_w = []
+            for i in range(len(seq_counts)):
+                t_w = w[i]
+                c,l = seq_counts[i]
+                for j in range(c+l):
+                    f_w.append(t_w)
+
+            if(len(seq_counts) > 0):
+                w = f_w
+
             # Create and train the quantized network
             layer_mapping = create_layer_mapping(w)
             quant_net = Quant_Model(og_model, w, layer_mapping, sign)
@@ -436,6 +517,16 @@ def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, te
         print('\nDSE STARTING ... EXHAUSTIVE SEARCH')
         test_accuracy = []
         for i, w in enumerate(weights_per_layer):
+            f_w = []
+            for i in range(len(seq_counts)):
+                t_w = w[i]
+                c,l = seq_counts[i]
+                for j in range(c+l):
+                    f_w.append(t_w)
+
+            if(len(seq_counts) > 0):
+                w = f_w
+                
             layer_mapping = create_layer_mapping(w)
             quant_net = Quant_Model(og_model, w, layer_mapping, sign)
             quant_net = quant_net.to(device)

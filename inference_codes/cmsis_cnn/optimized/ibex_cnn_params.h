@@ -1,0 +1,30 @@
+#ifndef IBEX_CNN_PARAMS_H
+#define IBEX_CNN_PARAMS_H
+
+#define MV1 1953789044
+#define MV2 1229539657
+#define MV3 1212696648
+#define MV4 1330597711
+
+#define SV1 2164392961
+#define SV2 2299667521
+#define SV3 1488020161
+#define SV4 1623294721
+
+static const int SB1[8] = {
+	812696004, 946880900, 1079034308, 946913796, 945865156, 1081139524, 946930052, 545309060
+};
+
+static const int SB2[8] = {
+	945873216, 945832320, 945865152, 944816576, 674283904, 543211776, 945873280, 944824704
+};
+
+static const int SB3[16] = {
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+};
+
+static const int SB4[3] = {
+	3, 3, 3
+};
+
+#endif /* IBEX_CNN_PARAMS_H */

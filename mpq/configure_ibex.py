@@ -27,26 +27,34 @@ def quantize_multiplier(real_multiplier):
     return quantized_multiplier, right_shift
 
 def get_int_params(quant_net):
+    
     int_weights = []
     int_bias = []
     in_scales = []
     act_scales = []
     
-    for _, module in quant_net.sequential.named_children():
-        if hasattr(module, 'weight') and module.weight is not None:
-            int_weights.append(module.int_weight().cpu().numpy())
-            int_bias.append(module.int_bias().cpu().numpy())
-            in_scales.append(module.quant_bias_scale().cpu().detach().numpy())
+    def extract_quant_params(module):
+        for name, submodule in module.named_children():
+            # Check if the submodule has weights and append them if present
+            if hasattr(submodule, 'weight') and submodule.weight is not None:
+                int_weights.append(submodule.int_weight().cpu().detach().numpy())
+                int_bias.append(submodule.int_bias().cpu().detach().numpy())
+                in_scales.append(submodule.quant_bias_scale().cpu().detach().numpy())
 
-        if hasattr(module, 'quant_act_scale') and module.quant_act_scale is not None:
-            act_scales.append(module.quant_act_scale().cpu().detach().numpy())
+            # Check if the submodule has activation scale and append it if present
+            if hasattr(submodule, 'quant_act_scale') and submodule.quant_act_scale is not None:
+                act_scales.append(submodule.quant_act_scale().cpu().detach().numpy())
 
-    act_scales.append(quant_net.o_quant.quant_act_scale().cpu().detach().numpy())
+            # Recursively extract parameters from the children modules
+            extract_quant_params(submodule)
+
+    # Start extraction from the top-level module
+    extract_quant_params(quant_net)
     
     mul_vals, shift_vals = [], []
-
-    for i in range(len(act_scales)):
-        M = in_scales[i]/act_scales[i]
+    
+    for i in range(len(act_scales)-1):
+        M = in_scales[i]/act_scales[i+1]
         mul, shift = quantize_multiplier(M[0])
         mul_vals.append(mul)
         shift_vals.append(shift)
@@ -87,22 +95,27 @@ def decide_mode(network, weight_bit_width, input_uint8 = True):
     for name, module in network.named_modules():
         if isinstance(module, layer_types_py):
             layer_type_name = module.__class__.__name__
-            if(layer_type_name == 'Conv2d' or layer_type_name == 'Linear' or layer_type_name == 'DepthwiseConv2d'):
+            if(layer_type_name == 'Linear'):
                 layer_type.append(layer_type_name)
+            if(layer_type_name == 'Conv2d'):
+                if(module.groups == module.in_channels):
+                    layer_type.append('DepthwiseConv2d')
+                else:
+                    layer_type.append(layer_type_name)
             else:
                 if(layer_type_name == 'ReLU' or layer_type_name == 'Sigmoid'):
                     input_sign[ins] = 0
                     ins += 1
-
+        
     for i in range(len(weight_bit_width)):
         signed_input = 4 * input_sign[i]
-        if(weight_bit_width[i] == 2):
-            mode_per_layer.append(signed_input + 3)
-        elif(weight_bit_width[i] == 4):
-            mode_per_layer.append(signed_input + 2)
-        else:
-            if(layer_type[i] == 'DepthwiseConv2d'):
+        if(layer_type[i] == 'DepthwiseConv2d'):
                 mode_per_layer.append(signed_input + 1)
+        else:
+            if(weight_bit_width[i] == 2):
+                mode_per_layer.append(signed_input + 3)
+            elif(weight_bit_width[i] == 4):
+                mode_per_layer.append(signed_input + 2)
             else:
                 mode_per_layer.append(signed_input)
 
@@ -161,15 +174,22 @@ def pad_inputs_weights(quant_net, test_loader, mode_per_layer,
             else:
                 new_size_0 = a * 4
         
-            b = w.shape[1] // 4
-            if(w.shape[1] % 4 != 0):
-                new_size_1 = (b + 1) * 4
+            if((mode_per_layer[i] != 1) and (mode_per_layer[i] != 5)):
+                b = w.shape[1] // 4
+                if(w.shape[1] % 4 != 0):
+                    new_size_1 = (b + 1) * 4
+                else:
+                    new_size_1 = b * 4
+                    
+                new_w = np.zeros((new_size_0, new_size_1, w.shape[2], w.shape[3])).astype(np.int8)
+                new_w[:w.shape[0], :w.shape[1], :, :] = w
+            
             else:
-                new_size_1 = b * 4
-        
-            new_w = np.zeros((new_size_0, new_size_1, w.shape[2], w.shape[3])).astype(np.int8)
-            new_w[:w.shape[0], :w.shape[1], :, :] = w
-        
+                new_size_1 = 1
+                new_w = np.zeros((new_size_0, new_size_1, w.shape[2], w.shape[3])).astype(np.int8)
+                new_w[:w.shape[0], :w.shape[1], :, :] = w
+                new_w = np.squeeze(new_w, axis = 1)
+                
         padded_int_weights.append(new_w)
 
     padded_int_biases = []
@@ -325,6 +345,15 @@ def concat_inputs_weights(mode_per_layer, padded_input, padded_int_weights, padd
                         comb = combine_values(vector)
                         new_mat[i][j] = comb
 
+        elif(len(dims) == 3):
+            new_mat = np.zeros((int(dims[0]//4), dims[1], dims[2]), dtype = np.int64)
+            for i in range(int(dims[0]//4)):
+                    for j in range(dims[1]):
+                        for k in range(dims[2]):
+                            vector = layer_weight[4*i : 4*(i+1), j, k]
+                            comb = combine_values(vector)
+                            new_mat[i][j][k] = comb
+                            
         elif(len(dims) == 4):
             if((mode_per_layer[iter] == 0) | (mode_per_layer[iter] == 4)):
                 new_mat = np.zeros((int(dims[0]//4), dims[1], dims[2], dims[3]), dtype = np.int64)
@@ -602,9 +631,17 @@ def save_cnn_net_params(path, int_weights, int_biases, mul_vals, shift_vals, shi
             dims = np.shape(int_weights[k])
             mat = int_weights[k]   
             
-            if(len(dims) == 2):
-                wi += 1
-                st = 'static const int W' + str(wi) + '[' + str(dims[0]) + ']' + '[' + str(dims[1]) + '] = {\n'
+            if(len(dims) == 2 or ((len(dims) == 4) and dims[2] == dims[3] == 1)):
+                f.write('static const int ')
+                if(len(dims) == 2):
+                    wi += 1
+                    f.write('W' + str(wi))                
+                else:
+                    mat = np.squeeze(mat, axis = (2,3))
+                    fi += 1
+                    f.write('F' + str(fi))
+                    
+                st = '[' + str(dims[0]) + ']' + '[' + str(dims[1]) + '] = {\n'
                 f.write(st)
                 for n in range(dims[0]):
                     f.write('\t{')
@@ -618,7 +655,33 @@ def save_cnn_net_params(path, int_weights, int_biases, mul_vals, shift_vals, shi
                         f.write(',')
                     f.write('\n')
                 f.write('};\n\n')
-                
+            
+            elif (len(dims) == 3):
+                dims = np.shape(mat)
+                fi += 1
+                st = 'static const int F' + str(fi) + '[' + str(dims[0]) + '][' + str(dims[1])
+                st += '][' + str(dims[2]) + '] = {\n'
+                f.write(st)
+
+                for n in range(dims[0]):
+                    f.write('\t{\n')
+                    for l in range(dims[1]):
+                        f.write('\t\t{')
+                        for h in range(dims[2] - 1):
+                            f.write(str(mat[n][l][h]) + ', ')
+                        if dims[2] != 1:
+                            f.write(str(mat[n][l][dims[2] - 1]) + '}')
+                        else:
+                            f.write(str(mat[n][l][0]) + '}')
+                        if (l != dims[1] - 1):
+                            f.write(',')
+                        f.write('\n')
+                    f.write('\t}')
+                    if n != dims[0] - 1:
+                        f.write(',')
+                    f.write('\n')
+                f.write('};\n\n')
+            
             elif(len(dims) == 4):
                 mat = np.transpose(mat, (0, 2, 3, 1))
                 dims = np.shape(mat)
@@ -856,9 +919,11 @@ def generate_opt_c_code_mlp(path, name, int_weights, optimal_config, type_of_lay
         f.write('\t' + name + '();\n\n')
         f.write('\treturn 0;\n}')
 
-def get_cnn_details(model):
-    details = []
-    for layer in model.children():
+def get_cnn_details(module, details = None):
+    if details is None:
+        details = []
+
+    for layer in module.children():
         if isinstance(layer, nn.Conv2d):
             details.append({
                 "layer_type": "Conv2d",
@@ -866,18 +931,19 @@ def get_cnn_details(model):
                 "out_channels": layer.out_channels,
                 "kernel_size": layer.kernel_size,
                 "stride": layer.stride,
-                "padding": layer.padding
+                "padding": layer.padding,
+                "groups": layer.groups
             })
 
-        elif (isinstance(layer, nn.MaxPool2d)):
+        elif isinstance(layer, nn.MaxPool2d):
             details.append({
                 "layer_type": "MaxPool2d",
                 "kernel_size": layer.kernel_size,
                 "stride": layer.stride,
                 "padding": layer.padding
             })
-        
-        elif (isinstance(layer, nn.AvgPool2d)):
+
+        elif isinstance(layer, nn.AvgPool2d):
             details.append({
                 "layer_type": "AvgPool2d",
                 "kernel_size": layer.kernel_size,
@@ -891,6 +957,10 @@ def get_cnn_details(model):
                 "in_features": layer.in_features,
                 "out_features": layer.out_features
             })
+
+        # Recursively apply to children modules
+        get_cnn_details(layer, details)
+
     return details
 
 def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
@@ -900,10 +970,17 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
         f.write('#include "fully_connected.h"\n')
         f.write('#include "ibex_cnn_params.h"\n')
         f.write('#include "ibex_inputs.h"\n')
-        f.write('#include "conv2d.h"\n\n')
+        f.write('#include "conv2d.h"\n')
 
-        f.write('#define IMG_SZ ' + str(input.shape[2]) + '\n')
-        f.write('#define NUM_FIL0 ' + str(int_weights[0].shape[1]) + '\n\n')
+        for detail in cnn_details[:-1]:
+            if detail["layer_type"] == "Conv2d":
+                if(detail["in_channels"] == detail["out_channels"] == detail["groups"] != 1):
+                    f.write('#include "dws_conv.h"\n')
+                    break
+        
+        f.write('\n')
+        f.write('#define IMG_SZ ' + str(np.shape(input)[2]) + '\n')
+        f.write('#define NUM_FIL0 ' + str(np.shape(input)[1]) + '\n\n')
         i = 1
         for w in int_weights:
             if(len(np.shape(w)) == 4):
@@ -1050,11 +1127,17 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
 
         for detail in cnn_details[:-1]:
             if detail["layer_type"] == "Conv2d":
+                if(detail["in_channels"] == detail["out_channels"] == detail["groups"] != 1):
+                    conv_type = 'dw_conv'
+                elif(detail["kernel_size"][0] == 1):
+                    conv_type = 'pw_conv'
+                else:
+                    conv_type = "conv2"
                 if(i == 1):
-                    f.write('\t\tconv2(inp_dim, f_dim1, outp_dim1, in, F1, B1, ')
+                    f.write('\t\t' + conv_type + '(inp_dim, f_dim1, outp_dim1, in, F1, B1, ')
                     f.write('out1, STRIDE1, pad_1, SB1, MV1, SV1);')
                 else:
-                    f.write('\t\tconv2(outp_dim' + str(i-1) + ', f_dim' + str(i) + ', outp_dim' + str(i))
+                    f.write('\t\t' + conv_type + '(outp_dim' + str(i-1) + ', f_dim' + str(i) + ', outp_dim' + str(i))
                     f.write(', out' + str(i-1) + ', F' + str(fi) + ', B' + str(fi) + ', out' + str(i))
                     f.write(', STRIDE' + str(fi) + ', pad_' + str(i) + ', SB' + str(fi))
                     f.write(', MV' + str(fi) + ', SV' + str(fi) + ');')
@@ -1091,10 +1174,17 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
             f.write('\n')
             i += 1
         
-        f.write('\t\tmlp_layer(out' + str(i-1) + ', out, DENSE_DIM' + str(dn-1))
-        f.write(', OUT_DIM, W' + str(dn) + ', B' + str(fi + dn - 1))
-        f.write(', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
-        f.write(', SV' + str(fi + dn - 1) + ');\n')
+        if flatten == 0:
+            f.write('\t\tflatten(outp_dim' + str(i-1) + ', out' + str(i-1) + ', out' + str(i) + ');\n\n')
+            i += 1
+            f.write('\t\tmlp_layer(out' + str(i-1) + ', out, flatten_dim, OUT_DIM, ')
+            f.write('W1, B' + str(fi + dn - 1) +  ', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
+            f.write(', SV' + str(fi + dn - 1) + ');')
+        else:
+            f.write('\t\tmlp_layer(out' + str(i-1) + ', out, DENSE_DIM' + str(dn-1))
+            f.write(', OUT_DIM, W' + str(dn) + ', B' + str(fi + dn - 1))
+            f.write(', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
+            f.write(', SV' + str(fi + dn - 1) + ');\n')
 
         f.write('\n\t\tpcount_enable(0);\n\n')
         f.write('\t\tputs("Output Layer Values:\\n");\n')
@@ -1119,13 +1209,21 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
         f.write('#include "fully_connected_opt.h"\n')
         f.write('#include "ibex_cnn_params.h"\n')
         f.write('#include "ibex_inputs.h"\n')
-        f.write('#include "conv2d_opt.h"\n\n')
+        f.write('#include "conv2d_opt.h"\n')
+        
+        for detail in cnn_details[:-1]:
+            if detail["layer_type"] == "Conv2d":
+                if(detail["in_channels"] == detail["out_channels"] == detail["groups"] != 1):
+                    f.write('#include "dws_conv_opt.h"\n')
+                    break
+                
+        f.write('\n')
         
         f.write('#define IMG_SZ ' + str(np.shape(input)[2]) + '\n')
-        f.write('#define NUM_FIL0 ' + str(np.shape(input)[0]) + '\n\n')
+        f.write('#define NUM_FIL0 ' + str(np.shape(input)[1]) + '\n\n')
         i = 1
         for w in int_weights:
-            if(len(np.shape(w)) == 4):
+            if(len(np.shape(w)) == 4 or len(np.shape(w)) == 3):
                 f.write('#define FILTER' + str(i) + ' ' + str(w.shape[2]) + '\n')
                 i += 1
 
@@ -1133,7 +1231,7 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
         
         i = 1
         for w in int_weights:
-            if(len(np.shape(w)) == 4):
+            if(len(np.shape(w)) == 4 or len(np.shape(w)) == 3):
                 f.write('#define NUM_FIL' + str(i) + ' ' + str(w.shape[0]) + '\n')
                 i += 1
 
@@ -1270,14 +1368,21 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
 
         for detail in cnn_details[:-1]:
             if detail["layer_type"] == "Conv2d":
+                if(detail["in_channels"] == detail["out_channels"] == detail["groups"] != 1):
+                    conv_type = 'dw_conv_opt'
+                elif(detail["kernel_size"][0] == 1):
+                    conv_type = 'pw_conv_' + str(optimal_config[j]) + 'bits'
+                else:
+                    conv_type = 'conv2_' + str(optimal_config[j]) + 'bits'
+                    
                 if(i == 1):
-                    f.write('\t\tconv2_' + str(optimal_config[j]) + 'bits')
-                    if(np.shape(input)[0] == 1):
+                    f.write('\t\t' + conv_type)
+                    if(np.shape(input)[1] == 1):
                         f.write('_1ch')
                     f.write('(inp_dim, f_dim1, outp_dim1, in, F1, B1, ')
                     f.write('out1, STRIDE1, pad_1, SB1, MV1, SV1);')
                 else:
-                    f.write('\t\tconv2_' + str(optimal_config[j]) + 'bits(outp_dim' + str(i-1) + ', f_dim' + str(i))
+                    f.write('\t\t' + conv_type + '(outp_dim' + str(i-1) + ', f_dim' + str(i))
                     f.write(', outp_dim' + str(i) + ', out' + str(i-1) + ', F' + str(fi) + ', B' + str(fi) + ', out')
                     f.write(str(i) + ', STRIDE' + str(fi) + ', pad_' + str(i) + ', SB' + str(fi))
                     f.write(', MV' + str(fi) + ', SV' + str(fi) + ');')
@@ -1314,11 +1419,19 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
             f.write('\n')
             i += 1
         
-        f.write('\t\tmlp_layer_' + str(optimal_config[-1]) + 'bits(out' + str(i-1) + ', out, DENSE_DIM' + str(dn-1))
-        f.write(', OUT_DIM, W' + str(dn) + ', B' + str(fi + dn - 1))
-        f.write(', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
-        f.write(', SV' + str(fi + dn - 1) + ');\n')
+        if flatten == 0:
+            f.write('\t\tflatten(outp_dim' + str(i-1) + ', out' + str(i-1) + ', out' + str(i) + ');\n\n')
+            i += 1
+            f.write('\t\tmlp_layer_' + str(optimal_config[j]) + 'bits(out' + str(i-1) + ', out, ')
+            f.write('flatten_dim, OUT_DIM, W1, B' + str(fi + dn - 1) +  ', SB' + str(fi + dn - 1) + ', MV')
+            f.write(str(fi + dn - 1) + ', SV' + str(fi + dn - 1) + ');\n')
+        else:
+            f.write('\t\tmlp_layer_' + str(optimal_config[-1]) + 'bits(out' + str(i-1) + ', out, DENSE_DIM' + str(dn-1))
+            f.write(', OUT_DIM, W' + str(dn) + ', B' + str(fi + dn - 1))
+            f.write(', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
+            f.write(', SV' + str(fi + dn - 1) + ');\n')
 
+        f.write('\n\t\tpcount_enable(0);\n\n')
         f.write('\t\tputs("Output Layer Values:\\n");\n')
         f.write('\t\tfor(int i = 0; i < OUT_DIM; i++) {\n')
         f.write('\t\t\tputhex((out[i] & 0xFF000000) >> 24);\n')
