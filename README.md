@@ -44,7 +44,7 @@ git submodule update --init --recursive
 
 To implement the modifications in the RISC-V GNU toolchain, adhere to the changes outlined for the following files:
 
-1. **File Path**: `path/to/riscv-gnu-toolchain/riscv-binutils-gdb/include/opcode/riscv-opc.h`
+1. **File Path**: `path/to/riscv-gnu-toolchain/binutils/include/opcode/riscv-opc.h`
 
     ```c
     #ifndef RISCV_ENCODING_H
@@ -81,7 +81,7 @@ To implement the modifications in the RISC-V GNU toolchain, adhere to the change
     #endif /* DECLARE_INSN */
     ```
 
-2. **File Path**: `path/to/riscv-gnu-toolchain/riscv-binutils-gdb/opcodes/riscv-opc.c`
+2. **File Path**: `path/to/riscv-gnu-toolchain/binutils/opcodes/riscv-opc.c`
 
     ```c
     ...
