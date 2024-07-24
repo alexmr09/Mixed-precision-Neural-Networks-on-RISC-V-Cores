@@ -1,12 +1,12 @@
 # Install the latest version of Brevitas for the QAT of the networks
 git+https://github.com/Xilinx/brevitas
 
-numpy
-pandas
-torch
-matplotlib
+numpy>=1.26.4
+pandas==2.2.2
+torch==2.3.1
+matplotlib==3.9.0
 brokenaxes
 torchinfo
-tensorflow
-scikit-learn
-openpyxl
+tensorflow==2.16.2
+scikit-learn==1.5.0
+openpyxl==3.1.5
