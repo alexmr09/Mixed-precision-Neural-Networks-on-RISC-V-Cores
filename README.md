@@ -331,3 +331,17 @@ Divide Wait:                0
 <a name="1"> [1] </a> Benoit Jacob, Skirmantas Kligys, Bo Chen, Menglong Zhu, Matthew Tang, Andrew
 Howard, Hartwig Adam, and Dmitry Kalenichenko. Quantization and training of
 neural networks for efficient integer-arithmetic-only inference, 2017.
+
+### Citation
+If you find our project helpful, please consider citing our paper:
+```
+@misc{mixedICCAD24,
+      title={Mixed-precision Neural Networks on RISC-V Cores: ISA extensions for Multi-Pumped Soft SIMD Operations}, 
+      author={Giorgos Armeniakos and Alexis Maras and Sotirios Xydis and Dimitrios Soudris},
+      year={2024},
+      eprint={2407.14274},
+      archivePrefix={arXiv},
+      primaryClass={cs.AR},
+      url={https://arxiv.org/abs/2407.14274}, 
+}
+```
