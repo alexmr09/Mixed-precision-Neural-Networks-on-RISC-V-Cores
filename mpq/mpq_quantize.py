@@ -296,6 +296,9 @@ def create_layer_mapping(bit_width):
         nn.ReLU: lambda _, bw: qnn.QuantReLU(bit_width = bw, 
                                             return_quant_tensor = True),
 
+        nn.ReLU6: lambda _, bw: qnn.QuantReLU(bit_width = 8, 
+                                            return_quant_tensor = True),
+        
         nn.MaxPool2d: lambda layer, _: qnn.QuantMaxPool2d(kernel_size = layer.kernel_size,
                                                         stride = layer.stride,
                                                         padding = layer.padding,
@@ -356,34 +359,33 @@ class Quant_Model(nn.Module):
         X = self.o_quant(X)
         return F.log_softmax(X, dim = 1)
 
+def _count_layers(submodule, sequential_counts, prefix=''):
+    if isinstance(submodule, nn.Conv2d):
+        # Increment the conv layer count if it's a Conv2d
+        sequential_counts[-1][0] += 1
+    elif isinstance(submodule, nn.Linear):
+        # Increment the linear layer count if it's a Linear
+        sequential_counts[-1][1] += 1
+    elif isinstance(submodule, nn.Sequential):
+        # Append a new tuple for this sequential block
+        sequential_counts.append([0, 0])
+        # Recursively count layers in this sequential block
+        for name, child in submodule.named_children():
+            child_prefix = f"{prefix}.{name}" if prefix else name
+            _count_layers(child, sequential_counts, child_prefix)
+    else:
+        # Recursively process children of non-nn.Sequential modules
+        for name, child in submodule.named_children():
+            _count_layers(child, sequential_counts, prefix)
+
 def count_layers_in_sequential(module):
-    # List to store the counts of Conv2d and Linear layers for each nn.Sequential module
-    sequential_counts = []
-
-    def _count_layers(submodule, prefix = ''):
-        if isinstance(submodule, nn.Sequential):
-            conv_count = 0
-            linear_count = 0
-            # Count Conv2d and Linear layers in the current nn.Sequential module
-            for child in submodule.children():
-                if isinstance(child, nn.Conv2d):
-                    conv_count += 1
-                elif isinstance(child, nn.Linear):
-                    linear_count += 1
-            # Append the counts to the list
-            sequential_counts.append((conv_count, linear_count))
-            # Recursively process children of the current nn.Sequential module
-            for name, child in submodule.named_children():
-                child_prefix = f"{prefix}.{name}" if prefix else name
-                _count_layers(child, child_prefix)
-        else:
-            # Process children of non-nn.Sequential modules
-            for name, child in submodule.named_children():
-                _count_layers(child, prefix)
-
-    _count_layers(module)
-    
-    return sequential_counts[1:]
+    sequential_counts = [[0, 0]]  # Initialize with a count tuple for the top level
+    _count_layers(module, sequential_counts)
+    output = []
+    for i, (c, l) in enumerate(sequential_counts[1:]): # We ignore the top level module
+        if(c +l != 0):
+            output.append((c, l))
+    return output
 
 def train_quant_model(quant_net, train_loader, val_loader = None, device = 'cpu',
                       epochs = 20, lr = 0.0001):
