@@ -151,7 +151,7 @@ Finally, once the optimal configuration aligning with our constraints is determi
   - The scale values for the conversion of the 32-bit accumulated results back to 8-bits. The mathematical equation for this procedure is described on [[1]](#1).
   - The C code delineating the functionality of the Quantized Network.
 
-Comprehensive examples that implement the procedure, described above, are provided in this [subfolder](https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/tree/main/mpq).
+Comprehensive examples that implement the procedure, described above, are provided in this [subfolder](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/tree/main/mpq).
 
 ## RISC-V Architecture
 ### Ibex RISC-V Core
@@ -201,7 +201,7 @@ For the simulation of our QNNs on the modified Ibex core, with Verilator, we can
   
 - [Ibex Demo System](https://github.com/lowrisc/ibex-demo-system), which is an example RISC-V SoC targeting the Arty-A7 FPGA board that includes core alongside UART, GPIO, PWM, Timer, SPI and debug support.
 
-All the necessary files for the 2 designs are located on the [extended_ibex](https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/tree/main/extended_ibex) folder.
+All the necessary files for the 2 designs are located on the [extended_ibex](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/tree/main/extended_ibex) folder.
 
 ### Building Simulation
 
@@ -272,15 +272,15 @@ deactivate
 
 ### Building Software
 
-To compile the appropriate C executable for our Quantized Neural Network, we should first make sure that the previously generated C file along with the header files containing the compressed network's parameters and inputs are located in the same folder under the [inference codes](https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/tree/main/inference_codes) directory. Within this directory, you'll find compatible software examples that work for both system simulations.
-Additionally on the [common](https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/tree/main/inference_codes/common) subfolder, you'll find the optimized kernels featuring the custom instructions.
+To compile the appropriate C executable for our Quantized Neural Network, we should first make sure that the previously generated C file along with the header files containing the compressed network's parameters and inputs are located in the same folder under the [inference codes](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/tree/main/inference_codes) directory. Within this directory, you'll find compatible software examples that work for both system simulations.
+Additionally on the [common](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/tree/main/inference_codes/common) subfolder, you'll find the optimized kernels featuring the custom instructions.
 
 For example, to build the LeNet5 MNIST example, from our root repository run:
 ```
 make -C inference_codes/lenet5_mnist/optimized
 ```
 
-The compiled .elf program is available at [inference codes/lenet5_mnist/optimized](https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/tree/main/inference_codes/lenet5_mnist/optimized). The same directory also contains a Verilog memory file (vmem file) to be used with some simulators.
+The compiled .elf program is available at [inference codes/lenet5_mnist/optimized](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/tree/main/inference_codes/lenet5_mnist/optimized). The same directory also contains a Verilog memory file (vmem file) to be used with some simulators.
 
 ### Running the Simulator
 
