@@ -98,7 +98,7 @@ def decide_mode(network, weight_bit_width, input_uint8 = True):
             if(layer_type_name == 'Linear'):
                 layer_type.append(layer_type_name)
             if(layer_type_name == 'Conv2d'):
-                if(module.groups == module.in_channels):
+                if(module.groups == module.in_channels and module.groups != 1):
                     layer_type.append('DepthwiseConv2d')
                 else:
                     layer_type.append(layer_type_name)

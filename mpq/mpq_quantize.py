@@ -265,7 +265,7 @@ def create_layer_mapping(bit_width):
                                                         weight_scaling_min_val=2e-16,
                                                         restrict_scaling_type=RestrictValueType.LOG_FP,
                                                         return_quant_tensor=True
-                                                        ) if layer.groups != layer.in_channels else (
+                                                        ) if layer.groups != layer.in_channels or layer.groups == 1 else (
                                                             # Special case for depthwise convolutions
                                         qnn.QuantConv2d(in_channels=layer.in_channels, 
                                                                 out_channels=layer.out_channels, 
