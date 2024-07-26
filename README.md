@@ -24,7 +24,7 @@ This repository includes:
 A brief overview of the whole process can be seen in the following flowchart:
 
 <p align="center">
-<img width="55%" alt="workflow" src="https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/blob/main/assets/figures/workflow_page-0001.jpg">
+<img width="55%" alt="workflow" src="assets/figures/workflow_page-0001.jpg">
 </p>
 
 ## Build the RISC-V Toolchain
@@ -141,7 +141,7 @@ The next step involves creating the Quantized Model using the [Brevitas](https:/
   1. "**Exhaustive**" Design Space Exploration. This method allows us to observe how our network behaves when utilizing different weight configurations. It's suitable for relatively small models (up to 5 or 6 layers) and ensures finding the optimal solution. However, for larger models, efficiency becomes crucial. To expedite the process, we can either uniformly quantize consecutive layers and treat them as a single unit, or we can use a fixed bit-width for the weights of layers with lower workload. While this approach may yield sub-optimal solutions, the results are typically satisfactory. To utilize this approach for a given network, we can set the *max_acc_drop* variable to *None*.
 
 <p align="center">
-<img src="https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/blob/main/assets/figures/pareto_sols.png" width="65%">
+<img src="assets/figures/pareto_sols.png" width="65%">
 </p>
 
   2. In the second case, the user sets the maximum allowable accuracy degradation. We utilize a binary search algorithm across a pre-sorted array of all potential model configurations, ordered by their projected latencies. This approach significantly enhances efficiency by examining merely `log2(3^L)` configurations, swiftly identifying a solution that conforms to the user's accuracy requirements. To utilize this approach for a specific network we need to set the *max_acc_drop* variable to a specific value.
@@ -169,7 +169,7 @@ Integer Multiplication and Division (M), Compressed (C), and B (Bit
 Manipulation) extensions.
 
 <p align="center">
-	<img src="https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/blob/main/assets/figures/ibex_page-0001.jpg" width="50%">
+	<img src="assets/figures/ibex_page-0001.jpg" width="50%">
 </p>
 
 You can explore the codebase for the Ibex repository on GitHub by visiting [lowRISC/ibex](https://github.com/lowRISC/ibex).
@@ -190,7 +190,7 @@ The overarching objective is to amplify the throughput of MAC operations per cyc
   - **Soft SIMD** : We pack 2 multiplications inside a single multiplier, when asked to calculate the products between 2-bit weights and the 8-bit inputs of each layer.
 
 <p align="center">
-	<img src="https://github.com/alexmr09/ISA-extensions-for-Multi-Pumped-Soft-SIMD-Operations/blob/main/assets/figures/micro_page-0001.jpg" width="50%">
+	<img src="assets/figures/micro_page-0001.jpg" width="50%">
 </p>
 
 ## Inference Simulation Using Verilator
