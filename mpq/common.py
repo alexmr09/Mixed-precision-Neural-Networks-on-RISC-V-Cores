@@ -5,9 +5,10 @@ import simulate_ibex
 import os
 import sys
 import numpy as np
+import random
 
 def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val = None, y_val = None, 
-         BATCH_SIZE = 32, epochs = 20, lr = 0.0001, max_acc_drop = None):
+         pretrained = False, method = 'qat', BATCH_SIZE = 32, epochs = 20, lr = 0.0001, max_acc_drop = None):
     
     net = net.to(device)
 
@@ -32,21 +33,24 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
         print("Error: The lengths of 'epochs' and 'lr' are not equal.")
         sys.exit(1)
 
-    print('\nFULL PRECISION MODEL TRAINING ...')
+    if(pretrained == False):
+        print('\nFULL PRECISION MODEL TRAINING ...')
+        for i in range(len(tr_epochs)):
+            print(f'Round No{i+1}')
+            fp_net = mpq_quantize.fp_train(net, train_loader, val_loader, device, 
+                                        epochs = tr_epochs[i], lr = tr_lr[i])
 
-    for i in range(len(tr_epochs)):
-        print(f'Round No{i+1}')
-        fp_net = mpq_quantize.fp_train(net, train_loader, val_loader, device, 
-                                       epochs = tr_epochs[i], lr = tr_lr[i])
+    else:
+        fp_net = net
 
-    fp_accuracy = mpq_quantize.fp_evaluate(net, test_loader, device)
+    fp_accuracy = mpq_quantize.fp_evaluate(fp_net, test_loader, device)
 
     weights_per_layer, total_macc_opt_sorted = mpq_quantize.create_weight_confs(macc_per_layer)
-
+    
     if(max_acc_drop is None):
-        
+
         quant_net, accuracy = mpq_quantize.dse(fp_net, max_acc_drop, weights_per_layer, fp_accuracy, train_loader,
-                                        test_loader, val_loader, device, tr_epochs, tr_lr)
+                                        test_loader, val_loader, method, device, tr_epochs, tr_lr)
         
         optimal_config = pareto_sols.pareto_space(fp_accuracy, accuracy, weights_per_layer, macc_per_layer,
                                             total_macc_opt_sorted, name)
@@ -61,8 +65,9 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
         mpq_quantize.quant_net_evaluation(quant_net, test_loader, device)
 
     else:
+        
         quant_net, optimal_config = mpq_quantize.dse(fp_net, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, 
-                                        test_loader, val_loader, device, tr_epochs, tr_lr)
+                                        test_loader, val_loader, method, device, tr_epochs, tr_lr)
 
     print('\nCREATING FILES FOR SIMULATION ON IBEX CORE ...')
     mode_per_layer, layer_type = configure_ibex.decide_mode(fp_net, 
@@ -86,6 +91,8 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
 
     configure_ibex.generate_Makefile(original_path, name)
 
+    cnn_details, act_details = configure_ibex.get_net_details(fp_net)
+
     if np.unique(layer_type)[0] =='Linear':
         configure_ibex.save_1d_inputs(original_path, input)
         configure_ibex.save_1d_inputs(optimized_path, combined_input)
@@ -93,7 +100,7 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
         configure_ibex.save_mlp_net_params(original_path, int_weights, int_og_bias, mul_vals, shift_vals)
         configure_ibex.save_mlp_net_params(optimized_path, new_int_w, new_int_b, mul_v, shift_v, shift_b)
         
-        configure_ibex.generate_og_c_code_mlp(original_path, name, int_weights, optimal_config, layer_type)  
+        configure_ibex.generate_og_c_code_mlp(original_path, name, int_weights, act_details, optimal_config, layer_type)  
         configure_ibex.generate_opt_c_code_mlp(optimized_path, name, new_int_w, optimal_config, layer_type)
 
     else:
@@ -103,10 +110,8 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
         configure_ibex.save_cnn_net_params(original_path, int_weights, int_og_bias, mul_vals, shift_vals)
         configure_ibex.save_cnn_net_params(optimized_path, new_int_w, new_int_b, mul_v, shift_v, shift_b)
 
-        cnn_details = configure_ibex.get_cnn_details(fp_net)
-
-        configure_ibex.generate_og_c_code_cnn(original_path, name, input, cnn_details, int_weights)
-        configure_ibex.generate_opt_c_code_cnn(optimized_path, name, combined_input, cnn_details, 
+        configure_ibex.generate_og_c_code_cnn(original_path, name, input, cnn_details, act_details, int_weights)
+        configure_ibex.generate_opt_c_code_cnn(optimized_path, name, combined_input, cnn_details, act_details,
                                             new_int_w, optimal_config)
 
     print('FINISHED ...')
@@ -125,7 +130,7 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
         print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
         ibex_model = simulate_ibex.create_lenet_model(int_weights, int_og_bias, mul_vals, shift_vals)
         simulate_ibex.eval_sim_model(quant_net, ibex_model, test_loader)
-        
+
     elif(name == 'cmsis_cnn'):
         print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
         ibex_model = simulate_ibex.create_cmsis_cnn_model(int_weights, int_og_bias, mul_vals, shift_vals)
@@ -134,4 +139,9 @@ def create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, X_val =
     elif(name == 'cifar10_dws_cnn'):
         print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
         ibex_model = simulate_ibex.create_ibex_dws_model(int_weights, int_og_bias, mul_vals, shift_vals)
+        simulate_ibex.eval_sim_model(quant_net, ibex_model, test_loader)
+
+    elif(name == 'mcunet_vww'):
+        print('\nSIMULATING MODEL ON IBEX CORE\nUSE THE OUTPUTS TO VERIFY THAT THE RESULTS ARE CORRECT !!')
+        ibex_model = simulate_ibex.create_mcunet_model(int_weights, int_og_bias, mul_vals, shift_vals)
         simulate_ibex.eval_sim_model(quant_net, ibex_model, test_loader)

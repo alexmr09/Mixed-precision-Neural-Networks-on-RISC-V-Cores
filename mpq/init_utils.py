@@ -14,6 +14,10 @@ def get_args():
                         help = 'Maximum accuracy drop (default: None)')
     parser.add_argument('--device', type = str, choices = ['cpu', 'cuda'], default = 'cpu', 
                         help = 'Device to run the model on (default: cpu)')
+                        
+    parser.add_argument('--method', type = str, choices = ['qat', 'ptq', 'both'], default='qat', 
+                        help='Method to fine tune the model\'s parameters (default: qat)')
+                        
     return parser.parse_args()
     
 def initialize_environment(file_name):

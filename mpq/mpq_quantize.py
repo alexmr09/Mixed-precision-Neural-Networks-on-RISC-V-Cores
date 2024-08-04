@@ -1,5 +1,5 @@
-import numpy as np 
 import sys
+import numpy as np 
 
 # Import Torch 
 import torch
@@ -12,9 +12,11 @@ from torch import nn, optim
 import brevitas.nn as qnn
 from brevitas.quant import *
 from brevitas.core.restrict_val import RestrictValueType
+from brevitas.graph.calibrate import bias_correction_mode, calibration_mode
 
-from collections import defaultdict
 from torchinfo import summary
+import brevitas.config as config
+config.IGNORE_MISSING_KEYS = True
 
 def net_input_size(X_train):
     example = X_train[0]
@@ -25,7 +27,7 @@ def net_input_size(X_train):
     return np.shape(example)
 
 def display_model_info(model, input_size):
-    a = summary(model, input_size, col_names = ("output_size", "num_params", "mult_adds"))
+    a = summary(model, input_size, col_names = ("output_size", "num_params", "mult_adds"), verbose = 1)
     model_params_str = str(a)
     
     lines = model_params_str.split('\n')
@@ -187,6 +189,56 @@ def fp_evaluate(net, test_loader, device):
         floating_acc = 100*float(correct)/y_size
     return floating_acc
 
+def group_indices_by_multiple_ranges(values, ranges):
+    
+    ranges_dict = {f"{start}-{end}": [] for start, end in ranges}
+    
+    for index, value in enumerate(values):
+        for start, end in ranges:
+            if start <= value <= end:
+                range_key = f"{start}-{end}"
+                ranges_dict[range_key].append(index)
+
+    # Function to split consecutive indices into separate lists
+    def split_consecutive_indices(indices):
+    
+        if not indices:
+            return []
+    
+        result = []
+        current_list = [indices[0]]
+    
+        for i in range(1, len(indices)):
+            if indices[i] == indices[i-1] + 1:
+                current_list.append(indices[i])
+                if len(current_list) == 3:
+                    result.append(current_list)
+                    current_list = []
+    
+            else:
+                if current_list:
+                    result.append(current_list)
+                current_list = [indices[i]]
+    
+        if current_list:
+            result.append(current_list)
+    
+        return result
+
+    ranges_dict["0.5-0.7"] = split_consecutive_indices(ranges_dict["0.5-0.7"])
+    ranges_dict["0.7-1"] = split_consecutive_indices(ranges_dict["0.7-1"])
+    
+    return ranges_dict
+
+def count_total_lists(grouped_indices):
+    total_lists = 0
+    for key in grouped_indices:
+        if grouped_indices[key]: 
+            if isinstance(grouped_indices[key][0], list):
+                total_lists += len(grouped_indices[key])
+            else:
+                total_lists += 1
+    return total_lists
 
 def generate_sequences(length, values = [2, 4, 8]):
     sequences = []
@@ -204,23 +256,74 @@ def generate_sequences(length, values = [2, 4, 8]):
     return sequences
 
 def create_weight_confs(macc_per_layer):
-    total_macc_opt = []
-    
-    cc = 0 
-    idx = []
-    
-    if(len(macc_per_layer) >= 6):
+    if(len(macc_per_layer) >= 10):
+
+        ranges = [(0, 0.1), (0.1, 0.3), (0.3, 0.5), (0.5, 0.7), (0.7, 1)]
+        values = [mpl/max(macc_per_layer) for mpl in macc_per_layer]
+        grouped_lists = group_indices_by_multiple_ranges(values, ranges)
+        concat_grouped_list = []
+
+        for _, index_lists in grouped_lists.items():
+            if index_lists:
+                if isinstance(index_lists[0], list):
+                    for sublist in index_lists:
+                        concat_grouped_list.append(sublist)
+                else:
+                    concat_grouped_list.append(index_lists)
+
+        weights_per_layer = generate_sequences(count_total_lists(grouped_lists))
+
+        temp_weights = np.ndarray((len(weights_per_layer), len(macc_per_layer)), dtype = np.int8)
+
+        for i in range(len(weights_per_layer)):
+            w = weights_per_layer[i]
+            for j in range(len(w)):
+                indices = concat_grouped_list[j]
+                for id in indices:
+                    temp_weights[i][id] = w[j]
+        
+        temp_weights = temp_weights.tolist()
+        temp_weights_f1 = []
+
+        for el in grouped_lists["0-0.1"]:
+            for w in temp_weights:
+                if w[el] == 8:
+                    temp_weights_f1.append(w)
+
+        if len(temp_weights_f1) == 0:
+            temp_weights_f1 = temp_weights
+
+        temp_weights_f2 = []
+
+        for el in grouped_lists["0.1-0.3"]:
+            for w in temp_weights_f1:
+                if w[el] == 8 or w[el] == 4:
+                    temp_weights_f2.append(w)
+
+        if len(temp_weights_f2) == 0:
+            weights_per_layer = temp_weights_f1
+
+        else:
+            weights_per_layer = temp_weights_f2
+
+    elif(len(macc_per_layer) >= 6):
+        cc = 0 
+        idx = []
         for i, mpl in enumerate(macc_per_layer):
             if(mpl/max(macc_per_layer) < 0.05):
                 cc += 1
                 idx.append(i)
     
-    weights_per_layer = generate_sequences(len(macc_per_layer) - cc)
+        weights_per_layer = generate_sequences(len(macc_per_layer) - cc)
+        
+        for w in weights_per_layer:
+            for i in idx:
+                w.insert(i, 8)
+    else:
+        weights_per_layer = generate_sequences(len(macc_per_layer))
     
-    for w in weights_per_layer:
-        for i in idx:
-            w.insert(i, 8)
-    
+    total_macc_opt = []
+
     for w_conf in weights_per_layer:
         macc = 0
         for i, w in enumerate(w_conf):
@@ -276,7 +379,7 @@ def create_layer_mapping(bit_width):
                                                                 bias=True,
                                                                 cache_inference_bias=True,
                                                                 bias_quant=Int32Bias,
-                                                                weight_bit_width=8,  # Fixed bit width for depthwise convolutions
+                                                                weight_bit_width = 8,  # Fixed bit width for depthwise convolutions
                                                                 weight_quant=Int8WeightPerTensorFloat,
                                                                 weight_scaling_min_val=2e-16,
                                                                 restrict_scaling_type=RestrictValueType.LOG_FP,
@@ -293,12 +396,12 @@ def create_layer_mapping(bit_width):
                                                     weight_bit_width = bw,
                                                     return_quant_tensor=True),
 
-        nn.ReLU: lambda _, bw: qnn.QuantReLU(bit_width = bw, 
+        nn.ReLU: lambda _, bw: qnn.QuantReLU(bit_width = 8, 
                                             return_quant_tensor = True),
 
         nn.ReLU6: lambda _, bw: qnn.QuantReLU(bit_width = 8, 
                                             return_quant_tensor = True),
-        
+
         nn.MaxPool2d: lambda layer, _: qnn.QuantMaxPool2d(kernel_size = layer.kernel_size,
                                                         stride = layer.stride,
                                                         padding = layer.padding,
@@ -320,12 +423,42 @@ def convert_layer(layer, bit_width, layer_mapping):
     else:
         return layer
 
+# Define a custom module for layers with a shortcut
+class ResidualModule(nn.Module):
+    def __init__(self, layer, bit_widths, layer_mapping, layer_idx, act_f, layer_residual):
+        super(ResidualModule, self).__init__()
+
+        self.layer = convert_model(layer, bit_widths, layer_mapping, layer_idx)
+
+        self.activation = act_f
+
+        self.residual = layer_residual
+
+    def forward(self, x):
+        res = self.layer(x)
+        res = self.activation(res)
+        if(self.residual):
+            res += x
+        return res
+
 # Function to convert a PyTorch model to a Brevitas model
 def convert_model(module, bit_widths, layer_mapping, layer_idx = [0]):
     brevitas_module = nn.Sequential()
     for name, layer in module.named_children():
         if list(layer.children()):  # If the layer has children, recurse
-            brevitas_module.add_module(name, convert_model(layer, bit_widths, layer_mapping, layer_idx))
+            if hasattr(layer, 'shortcut'):
+                if(layer.shortcut == False):
+                    act_f = qnn.QuantIdentity(bit_width = 8, return_quant_tensor = True,
+                                    act_quant = Int8ActPerTensorFloat, scaling_min_val = 2e-16, 
+                                    restrict_scaling_type = RestrictValueType.LOG_FP)
+                    act_prev = act_f
+                else:
+                    act_f = act_prev
+
+                brevitas_module.add_module(name, ResidualModule(layer, bit_widths, layer_mapping, layer_idx, 
+                                                                act_f, layer.shortcut))
+            else:
+                brevitas_module.add_module(name, convert_model(layer, bit_widths, layer_mapping, layer_idx))
         else:
             layer_type = type(layer)
             if layer_type in [nn.Conv2d, nn.Linear]:
@@ -333,6 +466,7 @@ def convert_model(module, bit_widths, layer_mapping, layer_idx = [0]):
                 layer_idx[0] += 1
             else:
                 bit_width = 8
+            
             brevitas_module.add_module(name, convert_layer(layer, bit_width, layer_mapping))
 
     return brevitas_module
@@ -393,7 +527,7 @@ def train_quant_model(quant_net, train_loader, val_loader = None, device = 'cpu'
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(quant_net.parameters(), lr = lr)
     
-    patience = 10
+    patience = 5
     best_val_loss = float('inf')
 
     for e in range(epochs):
@@ -445,6 +579,57 @@ def train_quant_model(quant_net, train_loader, val_loader = None, device = 'cpu'
         
     return quant_net
 
+def calibrate_model(quant_model, calibration_loader, device = 'cpu'):
+    with torch.no_grad():
+        # Put the model in calibration mode to collect statistics
+        # Quantization is automatically disabled during the calibration, and re-enabled at the end
+        with calibration_mode(quant_model):
+            for i, (images, _) in enumerate(calibration_loader):
+                images = images.to(device)
+                quant_model(images)
+
+        # Apply bias correction
+        with bias_correction_mode(quant_model):
+            for i, (images, _) in enumerate(calibration_loader):
+                images = images.to(device)
+                quant_model(images)
+                
+    return quant_model
+
+def extract_params(module, weights = [], biases = []):
+    for _, submodule in module.named_children():
+        # Check if the submodule has weights and append them if present
+        if hasattr(submodule, 'weight') and submodule.weight is not None:
+            if not isinstance(submodule, nn.BatchNorm2d):
+                weights.append(submodule.weight.cpu().clone().detach().numpy())
+                biases.append(submodule.bias.cpu().clone().detach().numpy())
+
+        # Recursively extract parameters from the children modules
+        extract_params(submodule, weights, biases)
+
+    return weights, biases
+
+def set_ptq_net_params(trained_model, new_model):
+    weights, biases = extract_params(trained_model)
+    custom_model_dict = new_model.state_dict()
+
+    for i, (name, _) in enumerate(custom_model_dict.items()):
+        if(i%2 == 0):
+            custom_model_dict[name] =  torch.tensor(weights[i//2])
+        else:
+            custom_model_dict[name] = torch.tensor(biases[i//2])
+    
+    new_model.load_state_dict(custom_model_dict)
+    return new_model
+
+
+def ptq_net(custom_model, quant_net, cal_loader, device = 'cpu'):
+    quant_net = set_ptq_net_params(custom_model, quant_net)
+    quant_net = quant_net.to(device)
+    quant_net = calibrate_model(quant_net, cal_loader, device)
+    
+    return quant_net
+
 def quant_net_evaluation(quant_net, test_loader, device = 'cpu'):
     with torch.no_grad():
         quant_net.eval()
@@ -460,8 +645,8 @@ def quant_net_evaluation(quant_net, test_loader, device = 'cpu'):
         print("Test accuracy: {:.3f}% ".format(100*float(correct)/y_size))
         return 100 * float(correct)/y_size
     
-def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, test_loader, val_loader = None,
-        device = 'cpu', epochs = 5, lr = 0.0001):
+def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, test_loader, 
+        val_loader = None, method = 'qat', device = 'cpu', epochs = 5, lr = 0.0001):
     
     sign = calculate_minimum(train_loader) >= 0
     seq_counts = count_layers_in_sequential(og_model)
@@ -491,12 +676,24 @@ def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, te
             quant_net = quant_net.to(device)
             print(f'==========================\nEvaluating Configuration: {mid} --> Weights: {w}')
 
-            for k in range(len(epochs)):
-                quant_net = train_quant_model(quant_net, train_loader, val_loader, device,
+            if(method == 'ptq' or method == 'both'):
+                if(val_loader == None):
+                    cal_loader = train_loader
+                else:
+                    cal_loader = val_loader
+
+                print('Starting PTQ ...')
+                quant_net = ptq_net(og_model, quant_net, cal_loader, device)
+                accuracy = quant_net_evaluation(quant_net, test_loader, device)
+
+            if(method == 'qat' or method == 'both'):
+                print('Starting QAT ...')
+                for k in range(len(epochs)):
+                    quant_net = train_quant_model(quant_net, train_loader, val_loader, device,
                                       epochs = epochs[k], lr = lr[k])
             
-            # Evaluate the trained quantized network
-            accuracy = quant_net_evaluation(quant_net, test_loader, device)
+                # Evaluate the trained quantized network
+                accuracy = quant_net_evaluation(quant_net, test_loader, device)
             
             # Check if the accuracy drop is within the acceptable range
             if fp_accuracy - accuracy <= max_acc_drop:
@@ -507,11 +704,12 @@ def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, te
             else:
                 low = mid + 1  # Too much accuracy loss, look for a more complex configuration
     
-        quant_net = optimal_quant_net
-
         if(opt_found == 0):
             print("No solution that meets user's criteria was found !!")
             optimal_config = w
+            
+        else:
+            quant_net = optimal_quant_net
 
         return quant_net, optimal_config
     
@@ -533,10 +731,25 @@ def dse(og_model, max_acc_drop, weights_per_layer, fp_accuracy, train_loader, te
             quant_net = Quant_Model(og_model, w, layer_mapping, sign)
             quant_net = quant_net.to(device)
             print(f'===================================\nModel No {i} --> {w}')
-            for k in range(len(epochs)):
-                quant_net = train_quant_model(quant_net, train_loader, val_loader, device,
+            
+            if(method == 'ptq' or method == 'both'):
+                if(val_loader == None):
+                    cal_loader = train_loader
+                else:
+                    cal_loader = val_loader
+
+                print('Starting PTQ ...')
+                quant_net = ptq_net(og_model, quant_net, cal_loader, device)
+                accuracy = quant_net_evaluation(quant_net, test_loader, device)
+
+            if(method == 'qat' or method == 'both'):
+                print('Starting QAT ...')
+                for k in range(len(epochs)):
+                    quant_net = train_quant_model(quant_net, train_loader, val_loader, device,
                                       epochs = epochs[k], lr = lr[k])
-            accuracy = quant_net_evaluation(quant_net, test_loader, device)
+                    
+                accuracy = quant_net_evaluation(quant_net, test_loader, device)
+
             test_accuracy.append(accuracy)
     
         return quant_net, test_accuracy

@@ -8,6 +8,7 @@ args = init_utils.get_args()
 # Set arguments from command line
 max_acc_drop = args.max_acc_drop
 device = args.device
+method = args.method
 
 import pandas as pd 
 import numpy as np
@@ -80,5 +81,6 @@ class EF_MLP(nn.Module):
     
 net = EF_MLP()
 
-common.create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, BATCH_SIZE = BATCH_SIZE, 
-                 epochs = epochs, lr = lr, max_acc_drop = max_acc_drop)
+common.create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, 
+                       pretrained = False, method = method, BATCH_SIZE = BATCH_SIZE, 
+                       epochs = epochs, lr = lr, max_acc_drop = max_acc_drop)

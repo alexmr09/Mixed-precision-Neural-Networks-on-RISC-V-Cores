@@ -7,6 +7,10 @@ torch==2.3.1
 matplotlib==3.9.0
 brokenaxes
 torchinfo
+torchvision==0.18.1
 tensorflow==2.16.2
 scikit-learn==1.5.0
 openpyxl==3.1.5
+
+setuptools==68.1.2
+git+https://github.com/mit-han-lab/mcunet

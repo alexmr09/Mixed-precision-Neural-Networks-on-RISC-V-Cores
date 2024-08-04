@@ -285,6 +285,414 @@ class Ibex_Cifar10_Dws_CNN(nn.Module):
             
         return x
 
+class Ibex_Conv_Block(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, mul_val, shift_val,
+                 stride = 1, act = 'relu', padding = 0, groups = 1):
+        
+        super(Ibex_Conv_Block, self).__init__()
+
+        self.conv = nn.Conv2d(in_channels = in_channels, out_channels = out_channels, 
+                             kernel_size = kernel_size, stride = stride, padding = padding,
+                             groups = groups, bias = True)
+        
+        self.act = act
+
+        self.m = mul_val
+        
+        self.s = shift_val + 7
+
+    def forward(self, x):
+        X = self.conv(x)
+        X = torch.mul(X, self.m)
+        X = torch.add(X, torch.bitwise_left_shift(torch.tensor(1), self.s-1)).type(torch.LongTensor)
+        X = torch.bitwise_right_shift(X, self.s).type(torch.FloatTensor)
+        if(self.act == 'relu'):
+            X = torch.clamp(X, min = 0, max = 255)
+        else:
+            X = torch.clamp(X, min = -128, max = 127)
+        return X
+
+class Ibex_MBInvertedConvLayer(nn.Module):
+    def __init__(self, in_channels, out_channels, out_channels_inv, kernel_size, 
+                 mul_vals, shift_vals, inverted_bottleneck = False, stride = 1, padding = 0):
+        
+        super(Ibex_MBInvertedConvLayer, self).__init__()
+        
+        self.inverted_bottleneck_bool = inverted_bottleneck
+        
+        if(inverted_bottleneck):
+            self.inverted_bottleneck = Ibex_Conv_Block(
+                in_channels = in_channels,
+                out_channels = out_channels_inv,
+                kernel_size = 1,
+                stride = 1,
+                mul_val = mul_vals[0],
+                shift_val = shift_vals[0]
+            )
+        
+            self.depth_conv = Ibex_Conv_Block(
+                in_channels = out_channels_inv,
+                out_channels = out_channels_inv,
+                groups = out_channels_inv,
+                kernel_size = kernel_size,
+                stride = stride,
+                padding = padding,
+                mul_val = mul_vals[1],
+                shift_val = shift_vals[1]
+            )
+        
+            self.point_linear = Ibex_Conv_Block(
+                in_channels = out_channels_inv,
+                out_channels = out_channels,
+                kernel_size = 1,
+                stride = 1,
+                act = 'not_relu',
+                mul_val = mul_vals[2],
+                shift_val = shift_vals[2]
+            )
+            
+        else:
+            self.depth_conv = Ibex_Conv_Block(
+                in_channels = in_channels,
+                out_channels = in_channels,
+                groups = in_channels,
+                kernel_size = kernel_size,
+                stride = stride,
+                padding = padding,
+                mul_val = mul_vals[0],
+                shift_val = shift_vals[0]
+            )   
+        
+            self.point_linear = Ibex_Conv_Block(
+                in_channels = in_channels,
+                out_channels = out_channels,
+                kernel_size = 1,
+                stride = 1,
+                act = 'not_relu',
+                mul_val = mul_vals[1],
+                shift_val = shift_vals[1]
+            )
+        
+    def forward(self, x):
+        if(self.inverted_bottleneck_bool):
+            x = self.inverted_bottleneck(x)
+        x = self.depth_conv(x)
+        
+        x = self.point_linear(x)
+        return x
+
+class Ibex_MobileInvertedResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, out_channels_inv, kernel_size, 
+                 stride, padding, mul_vals, shift_vals, act = 'not_relu',
+                 inverted_bottleneck = False, shortcut = False):
+        
+        super(Ibex_MobileInvertedResidualBlock, self).__init__()
+        
+        self.mobile_inverted_conv = Ibex_MBInvertedConvLayer(
+            in_channels = in_channels,
+            out_channels = out_channels,
+            out_channels_inv = out_channels_inv,
+            kernel_size = kernel_size,
+            stride = stride,
+            padding = padding,
+            mul_vals = mul_vals,
+            shift_vals = shift_vals,
+            inverted_bottleneck = inverted_bottleneck,
+        )
+        
+        self.act = act
+        self.shortcut_bool = shortcut
+        if(shortcut):
+            self.shortcut = nn.Identity()
+        
+    def forward(self, x):
+        res = self.mobile_inverted_conv(x)        
+        if(self.shortcut_bool):
+            res += x
+        
+        if(self.act == 'relu'):
+            res = torch.clamp(res, min = 0, max = 255)
+        else:
+            res = torch.clamp(res, min = -128, max = 127)
+
+        return res
+
+class Ibex_Linear_Layer(nn.Module):
+    def __init__(self,in_features, out_features, 
+                 mul_val, shift_val, bias = True, act = 'relu'):
+        
+        super(Ibex_Linear_Layer, self).__init__()
+        
+        self.s = shift_val + 7
+        self.m = mul_val
+        
+        self.linear = nn.Linear(
+            in_features = in_features,
+            out_features = out_features,
+            bias = bias
+        )
+        
+        self.act = act
+        
+    def forward(self, x):
+        X = self.linear(x)
+        X = torch.mul(X, self.m)
+        X = torch.add(X, torch.bitwise_left_shift(torch.tensor(1), self.s - 1)).type(torch.LongTensor)
+        X = torch.bitwise_right_shift(X, self.s).type(torch.FloatTensor)
+        if(self.act == 'relu'):
+            X = torch.clamp(X, min = 0, max = 255)
+        else:
+            X = torch.clamp(X, min = -128, max = 127)
+        return X
+
+class Ibex_ProxylessNASNets(nn.Module):
+    def __init__(self, ch_in, n_classes, mul_vals, shift_vals):
+        super(Ibex_ProxylessNASNets, self).__init__()
+        
+        self.first_conv = Ibex_Conv_Block(
+            in_channels = ch_in,
+            out_channels = 16,
+            kernel_size = 3,
+            stride = 2,
+            padding = 1,
+            mul_val = mul_vals[0],
+            shift_val = shift_vals[0]
+        )
+
+        layers = []
+        
+        #0
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 16,
+            out_channels = 8,
+            out_channels_inv = 0,
+            kernel_size = 3,
+            stride = 1,
+            padding = 1,
+            mul_vals = mul_vals[1:3],
+            shift_vals = shift_vals[1:3],
+        ))
+        
+        #1
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 8,
+            out_channels = 16,
+            out_channels_inv = 48,
+            kernel_size = 3,
+            stride = 2,
+            padding = 1,
+            inverted_bottleneck = True,
+            shortcut = False,
+            mul_vals = mul_vals[3:6],
+            shift_vals = shift_vals[3:6]
+        ))
+        
+        #2
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 16,
+            out_channels = 16,
+            out_channels_inv = 48,
+            kernel_size = 3,
+            stride = 1,
+            padding = 1,
+            inverted_bottleneck = True,
+            shortcut = True,
+            mul_vals = mul_vals[6:9],
+            shift_vals = shift_vals[6:9],
+        ))
+        
+        #3
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 16,
+            out_channels = 16,
+            out_channels_inv = 48,
+            kernel_size = 3,
+            stride = 1,
+            padding = 1,
+            inverted_bottleneck = True,
+            shortcut = True,
+            mul_vals = mul_vals[9:12],
+            shift_vals = shift_vals[9:12],
+        ))
+        
+        #4
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 16,
+            out_channels = 24,
+            out_channels_inv = 48,
+            kernel_size = 7,
+            inverted_bottleneck = True,
+            stride = 2,
+            padding = 3,
+            shortcut = False,
+            mul_vals = mul_vals[12:15],
+            shift_vals = shift_vals[12:15],
+        ))
+        
+        #5
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 24,
+            out_channels = 24,
+            out_channels_inv = 144,
+            kernel_size = 3,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 1,
+            shortcut = True,
+            mul_vals = mul_vals[15:18],
+            shift_vals = shift_vals[15:18]
+        ))
+        
+        #6
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 24,
+            out_channels = 24,
+            out_channels_inv = 120,
+            kernel_size = 5,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 2,
+            shortcut = True,
+            mul_vals = mul_vals[18:21],
+            shift_vals = shift_vals[18:21]
+        ))
+        
+        #7
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 24,
+            out_channels = 40,
+            out_channels_inv = 144,
+            kernel_size = 7,
+            inverted_bottleneck = True,
+            stride = 2,
+            padding = 3,
+            shortcut = False,
+            mul_vals = mul_vals[21:24],
+            shift_vals = shift_vals[21:24]
+        ))
+        
+        #8
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 40,
+            out_channels = 40,
+            out_channels_inv = 240,
+            kernel_size = 7,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 3,
+            shortcut = True,
+            mul_vals = mul_vals[24:27],
+            shift_vals = shift_vals[24:27]
+        ))
+        
+        #9
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 40,
+            out_channels = 48,
+            out_channels_inv = 240,
+            kernel_size = 3,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 1,
+            shortcut = False,
+            mul_vals = mul_vals[27:30],
+            shift_vals = shift_vals[27:30],
+        ))
+        
+        #10
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 48,
+            out_channels = 48,
+            out_channels_inv = 192,
+            kernel_size = 3,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 1,
+            shortcut = True,
+            mul_vals = mul_vals[30:33],
+            shift_vals = shift_vals[30:33]
+        ))
+        
+        #11
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 48,
+            out_channels = 96,
+            out_channels_inv = 240,
+            kernel_size = 5,
+            inverted_bottleneck = True,
+            stride = 2,
+            padding = 2,
+            shortcut = False,
+            mul_vals = mul_vals[33:36],
+            shift_vals = shift_vals[33:36]
+        ))
+        
+        #12
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 96,
+            out_channels = 96,
+            out_channels_inv = 480,
+            kernel_size = 3,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 1,
+            shortcut = True,
+            mul_vals = mul_vals[36:39],
+            shift_vals = shift_vals[36:39],
+        ))
+        
+        #13
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 96,
+            out_channels = 96,
+            out_channels_inv = 384,
+            kernel_size = 3,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 1,
+            shortcut = True,
+            mul_vals = mul_vals[39:42],
+            shift_vals = shift_vals[39:42]
+        ))
+        
+        #14
+        layers.append(Ibex_MobileInvertedResidualBlock(
+            in_channels = 96,
+            out_channels = 160,
+            out_channels_inv = 288,
+            kernel_size = 7,
+            inverted_bottleneck = True,
+            stride = 1,
+            padding = 3,
+            shortcut = False,
+            mul_vals = mul_vals[42:45],
+            shift_vals = shift_vals[42:45],
+        ))
+        
+        self.blocks = nn.Sequential(*layers)
+
+        # Output Block
+        self.classifier = Ibex_Linear_Layer(
+            in_features = 160, 
+            out_features = n_classes,
+            mul_val = mul_vals[45],
+            shift_val = shift_vals[45]
+        )
+
+    def forward(self, x, print_out = False):
+        x = self.first_conv(x)
+        
+        x = self.blocks(x)
+        x = x.mean(3).mean(2).type(torch.LongTensor)
+        
+        x = x.view(x.size(0), -1).type(torch.FloatTensor)        
+        x = self.classifier(x)
+
+        if(print_out):
+            print(x)
+            
+        return x
+
 def configure_network(ibex_model_dict, int_weights, int_biases):
     for i, (name, _) in enumerate(ibex_model_dict.items()):
         if(i%2 == 0):
@@ -335,6 +743,19 @@ def create_cmsis_cnn_model(int_weights, int_biases, mul_vals, shift_vals):
 
 def create_ibex_dws_model(int_weights, int_biases, mul_vals, shift_vals):
     ibex_model = Ibex_Cifar10_Dws_CNN(mul_vals, shift_vals)
+    ibex_model_dict = ibex_model.state_dict()
+
+    ibex_model_dict = configure_network(ibex_model_dict, int_weights, int_biases)
+    
+    ibex_model.load_state_dict(ibex_model_dict)
+    
+    return ibex_model
+
+def create_mcunet_model(int_weights, int_biases, mul_vals, shift_vals):
+    ibex_model = Ibex_ProxylessNASNets(ch_in = 3, n_classes = 2, 
+                                       mul_vals = mul_vals, 
+                                       shift_vals = shift_vals)
+        
     ibex_model_dict = ibex_model.state_dict()
 
     ibex_model_dict = configure_network(ibex_model_dict, int_weights, int_biases)

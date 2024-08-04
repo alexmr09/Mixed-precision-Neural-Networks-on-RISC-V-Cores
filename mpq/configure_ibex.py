@@ -103,10 +103,12 @@ def decide_mode(network, weight_bit_width, input_uint8 = True):
                 else:
                     layer_type.append(layer_type_name)
             else:
-                if(layer_type_name == 'ReLU' or layer_type_name == 'Sigmoid'):
+                if(layer_type_name == 'ReLU' or layer_type_name == 'ReLU6' or layer_type_name == 'Sigmoid'):
                     input_sign[ins] = 0
                     ins += 1
-        
+                elif(layer_type_name == 'Identity'):
+                    ins += 1
+
     for i in range(len(weight_bit_width)):
         signed_input = 4 * input_sign[i]
         if(layer_type[i] == 'DepthwiseConv2d'):
@@ -799,7 +801,83 @@ def generate_Makefile(path, name):
 
     return
 
-def generate_og_c_code_mlp(path, name, int_weights, optimal_config, type_of_layer):
+def get_net_details(module, details=None, act=None, conv_linear_counts=None, shortcut_counts=None, in_shortcut=False):
+    if details is None:
+        details = []
+        act = []
+        conv_linear_counts = {"Conv2d": 0, "Linear": 0}
+        shortcut_counts = []
+
+    for layer in module.children():
+        if hasattr(layer, 'shortcut'):
+            if in_shortcut:
+                total_layers = 0
+                for _, value in conv_linear_counts.items():
+                    total_layers += value
+
+                details.append({
+                    "layer_type": "Shortcut",
+                    "length": total_layers,
+                }
+                )
+                conv_linear_counts = {"Conv2d": 0, "Linear": 0}
+
+            if(layer.shortcut == False):
+                in_shortcut = False
+            else:
+                in_shortcut = True  # Indicate that we are in a shortcut module
+
+        if isinstance(layer, nn.Conv2d):
+            details.append({
+                "layer_type": "Conv2d",
+                "in_channels": layer.in_channels,
+                "out_channels": layer.out_channels,
+                "kernel_size": layer.kernel_size,
+                "stride": layer.stride,
+                "padding": layer.padding,
+                "groups": layer.groups
+            })
+            if in_shortcut:
+                conv_linear_counts["Conv2d"] += 1  # Increment count if in shortcut module
+
+        elif isinstance(layer, nn.MaxPool2d):
+            details.append({
+                "layer_type": "MaxPool2d",
+                "kernel_size": layer.kernel_size,
+                "stride": layer.stride,
+                "padding": layer.padding
+            })
+
+        elif isinstance(layer, nn.AvgPool2d):
+            details.append({
+                "layer_type": "AvgPool2d",
+                "kernel_size": layer.kernel_size,
+                "stride": layer.stride,
+                "padding": layer.padding
+            })
+
+        elif isinstance(layer, nn.Linear):
+            details.append({
+                "layer_type": "Linear",
+                "in_features": layer.in_features,
+                "out_features": layer.out_features
+            })
+            if in_shortcut:
+                conv_linear_counts["Linear"] += 1  # Increment count if in shortcut module
+
+        elif isinstance(layer, nn.ReLU) or isinstance(layer, nn.ReLU6):
+            act.append(1)
+
+        elif isinstance(layer, nn.Identity):
+            act.append(0)
+
+        # Recursively apply to children modules
+        get_net_details(layer, details, act, conv_linear_counts, shortcut_counts, in_shortcut)
+
+    return details, act
+
+
+def generate_og_c_code_mlp(path, name, int_weights, act_details, optimal_config, type_of_layer):
     with open(path + '/' + name + '.c', 'w') as f:
         f.write('#include "simple_system_common.h"\n')
         f.write('#include "fully_connected.h"\n')
@@ -825,22 +903,26 @@ def generate_og_c_code_mlp(path, name, int_weights, optimal_config, type_of_laye
         f.write('\t\tfor(int i = 0; i < IN_DIM; i++) inp[i] = input[iter][i];\n\n')
         f.write('\t\tpcount_enable(1);\n\n')
         
+        act_num = 0
         if(type_of_layer[0] == 'Linear'):
             f.write('\t\tmlp_layer(inp, y1, IN_DIM,') 
-            f.write(' HIDDEN_DIM1, W1, B1, SB1, MV1, SV1);\n')
-        
+            f.write(' HIDDEN_DIM1, W1, B1, SB1, MV1, SV1, ' + str(act_details[act_num]) + ');\n')
+            act_num += 1
+
         for i, b_w in enumerate(optimal_config[1:-1], start = 1):
             if(type_of_layer[i] == 'Linear'):
                 f.write('\t\tmlp_layer(y' + str(i) + ', y' + str(i+1))
                 f.write(', HIDDEN_DIM' + str(i) + ', HIDDEN_DIM' + str(i+1) + ', W' + str(i+1))
-                f.write(', B' + str(i+1) + ', SB' + str(i+1) + ', MV' + str(i+1) + ', SV' + str(i+1) + ');\n')
-        
+                f.write(', B' + str(i+1) + ', SB' + str(i+1) + ', MV' + str(i+1) + ', SV' + str(i+1))
+                f.write(', ' + str(act_details[act_num]) + ');\n')
+                act_num += 1
+                
         if(type_of_layer[-1] == 'Linear'):
             f.write('\t\tmlp_layer(y')
             f.write(str(len(int_weights)-1)+', out, HIDDEN_DIM'+str(len(int_weights)-1))
             f.write(', OUT_DIM, W' + str(len(int_weights)) + ', B')
             f.write(str(len(int_weights)) + ', SB' + str(len(int_weights)) + ', MV')
-            f.write(str(len(int_weights)) + ', SV' + str(len(int_weights)) + ');\n\n')
+            f.write(str(len(int_weights)) + ', SV' + str(len(int_weights)) + ', 1);\n\n')
         
         f.write('\t\tpcount_enable(0);\n\n')
         f.write('\t\tputs("Output Layer Values:\\n");\n')
@@ -919,51 +1001,7 @@ def generate_opt_c_code_mlp(path, name, int_weights, optimal_config, type_of_lay
         f.write('\t' + name + '();\n\n')
         f.write('\treturn 0;\n}')
 
-def get_cnn_details(module, details = None):
-    if details is None:
-        details = []
-
-    for layer in module.children():
-        if isinstance(layer, nn.Conv2d):
-            details.append({
-                "layer_type": "Conv2d",
-                "in_channels": layer.in_channels,
-                "out_channels": layer.out_channels,
-                "kernel_size": layer.kernel_size,
-                "stride": layer.stride,
-                "padding": layer.padding,
-                "groups": layer.groups
-            })
-
-        elif isinstance(layer, nn.MaxPool2d):
-            details.append({
-                "layer_type": "MaxPool2d",
-                "kernel_size": layer.kernel_size,
-                "stride": layer.stride,
-                "padding": layer.padding
-            })
-
-        elif isinstance(layer, nn.AvgPool2d):
-            details.append({
-                "layer_type": "AvgPool2d",
-                "kernel_size": layer.kernel_size,
-                "stride": layer.stride,
-                "padding": layer.padding
-            })
-
-        elif isinstance(layer, nn.Linear):
-            details.append({
-                "layer_type": "Linear",
-                "in_features": layer.in_features,
-                "out_features": layer.out_features
-            })
-
-        # Recursively apply to children modules
-        get_cnn_details(layer, details)
-
-    return details
-
-def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
+def generate_og_c_code_cnn(path, name, input, cnn_details, act_details, int_weights):
     with open(path + '/' + name + '.c', 'w') as f:
         f.write('#include "simple_system_common.h"\n')
         f.write('#include "cnn_weights.h"\n')
@@ -1062,10 +1100,15 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
             
             elif ((detail["layer_type"] == "MaxPool2d") or (detail["layer_type"] == "AvgPool2d")):
                 f.write('\tint dout' + str(i) + ' = dout' + str(i-1) + ';\n')
-                f.write('\tint hout' + str(i) + ' = hout' + str(i-1) + '/POOL_STRIDE' + str(st) + ';\n')
-                f.write('\tint wout' + str(i) + ' = wout' + str(i-1) + '/POOL_STRIDE' + str(st) + ';\n')
+                f.write('\tint hout' + str(i) + ' = ((hout' + str(i-1) + ' - POOL_SIZE' + str(st) + ')/POOL_STRIDE' + str(st) + ') + 1;\n')
+                f.write('\tint wout' + str(i) + ' = ((wout' + str(i-1) + ' - POOL_SIZE' + str(st) + ')/POOL_STRIDE' + str(st) + ') + 1;\n')
                 st += 1
             
+            elif(detail["layer_type"] == "Shortcut"):
+                f.write('\tint dout' + str(i) + ' = dout' + str(i-1) + ';\n')
+                f.write('\tint hout' + str(i) + ' = hout' + str(i-1) + ';\n')
+                f.write('\tint wout' + str(i) + ' = wout' + str(i-1) + ';\n')
+
             elif detail["layer_type"] == "Linear":
                 if flatten == 0:
                     f.write('\tint flatten_dim = dout' + str(i-1) + ' * hout' + str(i-1) + ' * wout' + str(i-1) + ';\n')
@@ -1095,11 +1138,11 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
                 f.write(', FILTER' + str(fi) + ', NUM_FIL' + str(fi-1) + '};\n')
                 fi += 1
             
-            elif ((detail["layer_type"] == "MaxPool2d") or (detail["layer_type"] == "AvgPool2d")):
+            elif ((detail["layer_type"] == "MaxPool2d") or (detail["layer_type"] == "AvgPool2d") or detail["layer_type"] == "Shortcut"):
                 f.write('\tint out' + str(i) + '[hout' + str(i) + '][wout' + str(i) + '][dout' + str(i) + '];\n')
                 f.write('\tint outp_dim' + str(i) + '[3] = {hout' + str(i) + ', wout' + str(i))
                 f.write(', dout' + str(i) + '};\n')
-            
+
             elif detail["layer_type"] == "Linear":
                 if flatten == 0:
                     f.write('\tint out' + str(i) + '[flatten_dim];\n')
@@ -1124,6 +1167,7 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
         st = 1
         dn = 1
         flatten = 0
+        act_num = 0
 
         for detail in cnn_details[:-1]:
             if detail["layer_type"] == "Conv2d":
@@ -1135,12 +1179,14 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
                     conv_type = "conv2"
                 if(i == 1):
                     f.write('\t\t' + conv_type + '(inp_dim, f_dim1, outp_dim1, in, F1, B1, ')
-                    f.write('out1, STRIDE1, pad_1, SB1, MV1, SV1);')
+                    f.write('out1, STRIDE1, pad_1, SB1, MV1, SV1, ' + str(act_details[act_num]) + ');')
+                    act_num += 1
                 else:
                     f.write('\t\t' + conv_type + '(outp_dim' + str(i-1) + ', f_dim' + str(i) + ', outp_dim' + str(i))
                     f.write(', out' + str(i-1) + ', F' + str(fi) + ', B' + str(fi) + ', out' + str(i))
                     f.write(', STRIDE' + str(fi) + ', pad_' + str(i) + ', SB' + str(fi))
-                    f.write(', MV' + str(fi) + ', SV' + str(fi) + ');')
+                    f.write(', MV' + str(fi) + ', SV' + str(fi) + ', ' + str(act_details[act_num]) + ');')
+                    act_num += 1
                 fi += 1
             
             elif detail["layer_type"] == "MaxPool2d":
@@ -1155,36 +1201,43 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
                 f.write(str(st) + ');\n')
                 st += 1
 
+            elif detail["layer_type"] == "Shortcut":
+                shortcut_length = detail["length"]
+                f.write('\t\tshortcut(outp_dim' + str(i) + ', out' + str(i-1))
+                f.write(', out' + str(i-shortcut_length-1) + ', out' + str(i) + ');\n')
+
             elif detail["layer_type"] == "Linear":
                 if flatten == 0:
                     f.write('\t\tflatten(outp_dim' + str(i-1) + ', out' + str(i-1) + ', out' + str(i) + ');\n\n')
                     i += 1
                     f.write('\t\tmlp_layer(out' + str(i-1) + ', out' + str(i) + ', flatten_dim, DENSE_DIM1')
                     f.write(', W1, B' + str(fi + dn - 1) +  ', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
-                    f.write(', SV' + str(fi + dn - 1) + ');')
+                    f.write(', SV' + str(fi + dn - 1) + ', ' + str(act_details[act_num]) + ');')
+                    act_num += 1
                     dn += 1
                     flatten = 1
                 else:
                     f.write('\t\tmlp_layer(out' + str(i-1) + ', out' + str(i) + ', DENSE_DIM' + str(dn-1))
                     f.write(', DENSE_DIM' + str(dn) + ', W' + str(dn) + ', B' + str(fi + dn - 1))
                     f.write(', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
-                    f.write(', SV' + str(fi + dn - 1) + ');')
+                    f.write(', SV' + str(fi + dn - 1) + ', ' + str(act_details[act_num]) + ');')
+                    act_num += 1
                     dn += 1
 
             f.write('\n')
             i += 1
-        
+
         if flatten == 0:
             f.write('\t\tflatten(outp_dim' + str(i-1) + ', out' + str(i-1) + ', out' + str(i) + ');\n\n')
             i += 1
             f.write('\t\tmlp_layer(out' + str(i-1) + ', out, flatten_dim, OUT_DIM, ')
             f.write('W1, B' + str(fi + dn - 1) +  ', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
-            f.write(', SV' + str(fi + dn - 1) + ');')
+            f.write(', SV' + str(fi + dn - 1) + ', 1);')
         else:
             f.write('\t\tmlp_layer(out' + str(i-1) + ', out, DENSE_DIM' + str(dn-1))
             f.write(', OUT_DIM, W' + str(dn) + ', B' + str(fi + dn - 1))
             f.write(', SB' + str(fi + dn - 1) + ', MV' + str(fi + dn - 1))
-            f.write(', SV' + str(fi + dn - 1) + ');\n')
+            f.write(', SV' + str(fi + dn - 1) + ', 1);\n')
 
         f.write('\n\t\tpcount_enable(0);\n\n')
         f.write('\t\tputs("Output Layer Values:\\n");\n')
@@ -1202,7 +1255,7 @@ def generate_og_c_code_cnn(path, name, input, cnn_details, int_weights):
 
     return
 
-def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal_config):
+def generate_opt_c_code_cnn(path, name, input, cnn_details, act_details, int_weights, optimal_config):
     with open(path + '/' + name + '.c', 'w') as f:
         f.write('#include "simple_system_common.h"\n')
         f.write('#include "cnn_weights.h"\n')
@@ -1285,6 +1338,7 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
         fi = 1
         st = 1
         flatten = 0
+        act_num = 0
 
         for detail in cnn_details:
             if detail["layer_type"] == "Conv2d":
@@ -1302,10 +1356,15 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
             
             elif ((detail["layer_type"] == "MaxPool2d") or (detail["layer_type"] == "AvgPool2d")):
                 f.write('\tint dout' + str(i) + ' = dout' + str(i-1) + ';\n')
-                f.write('\tint hout' + str(i) + ' = hout' + str(i-1) + '/POOL_STRIDE' + str(st) + ';\n')
-                f.write('\tint wout' + str(i) + ' = wout' + str(i-1) + '/POOL_STRIDE' + str(st) + ';\n')
+                f.write('\tint hout' + str(i) + ' = ((hout' + str(i-1) + ' - POOL_SIZE' + str(st) + ')/POOL_STRIDE' + str(st) + ') + 1;\n')
+                f.write('\tint wout' + str(i) + ' = ((wout' + str(i-1) + ' - POOL_SIZE' + str(st) + ')/POOL_STRIDE' + str(st) + ') + 1;\n')
                 st += 1
             
+            elif(detail["layer_type"] == "Shortcut"):
+                f.write('\tint dout' + str(i) + ' = dout' + str(i-1) + ';\n')
+                f.write('\tint hout' + str(i) + ' = hout' + str(i-1) + ';\n')
+                f.write('\tint wout' + str(i) + ' = wout' + str(i-1) + ';\n')
+
             elif detail["layer_type"] == "Linear":
                 if flatten == 0:
                     f.write('\tint flatten_dim = dout' + str(i-1) + ' * hout' + str(i-1) + ' * wout' + str(i-1) + ';\n')
@@ -1335,7 +1394,7 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
                 f.write(', FILTER' + str(fi) + ', NUM_FIL' + str(fi-1) + '};\n')
                 fi += 1
             
-            elif ((detail["layer_type"] == "MaxPool2d") or (detail["layer_type"] == "AvgPool2d")):
+            elif (detail["layer_type"] == "MaxPool2d" or detail["layer_type"] == "AvgPool2d" or detail["layer_type"] == "Shortcut"):
                 f.write('\tint out' + str(i) + '[hout' + str(i) + '][wout' + str(i) + '][dout' + str(i) + '];\n')
                 f.write('\tint outp_dim' + str(i) + '[3] = {hout' + str(i) + ', wout' + str(i))
                 f.write(', dout' + str(i) + '};\n')
@@ -1388,18 +1447,32 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
                     f.write(', MV' + str(fi) + ', SV' + str(fi) + ');')
                 j += 1
                 fi += 1
-            
+                act_num += 1
+
             elif detail["layer_type"] == "MaxPool2d":
-                f.write('\t\tmaxpool2_compressed(outp_dim' + str(i-1) + ', outp_dim' + str(i))
+                if(act_details[act_num-1] == 1):
+                    vers = 'unsigned'
+                else:
+                    vers = 'signed'
+                f.write('\t\tmaxpool2_compressed_' + vers + '(outp_dim' + str(i-1) + ', outp_dim' + str(i))
                 f.write(', out' + str(i-1) + ', out' + str(i) + ', POOL_SIZE' + str(st) + ', POOL_STRIDE')
                 f.write(str(st) + ');\n')
                 st += 1
 
             elif(detail["layer_type"] == "AvgPool2d"):
-                f.write('\t\tavgpool2_compressed(outp_dim' + str(i-1) + ', outp_dim' + str(i))
+                if(act_details[act_num-1] == 1):
+                    vers = 'unsigned'
+                else:
+                    vers = 'signed'
+                f.write('\t\tavgpool2_compressed_' + vers + '(outp_dim' + str(i-1) + ', outp_dim' + str(i))
                 f.write(', out' + str(i-1) + ', out' + str(i) + ', POOL_SIZE' + str(st) + ', POOL_STRIDE')
                 f.write(str(st) + ');\n')
                 st += 1
+
+            elif detail["layer_type"] == "Shortcut":
+                shortcut_length = detail["length"]
+                f.write('\t\tshortcut(outp_dim' + str(i) + ', out' + str(i-1))
+                f.write(', out' + str(i-shortcut_length-1) + ', out' + str(i) + ');\n')
 
             elif detail["layer_type"] == "Linear":
                 if flatten == 0:
@@ -1416,6 +1489,7 @@ def generate_opt_c_code_cnn(path, name, input, cnn_details, int_weights, optimal
                     f.write(', SV' + str(fi + dn - 1) + ');\n')
                 j += 1
                 dn += 1
+                act_num += 1
             f.write('\n')
             i += 1
         

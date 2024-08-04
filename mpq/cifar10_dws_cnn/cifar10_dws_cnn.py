@@ -8,6 +8,7 @@ args = init_utils.get_args()
 # Set arguments from command line
 max_acc_drop = args.max_acc_drop
 device = args.device
+method = args.method
 
 from sklearn.model_selection import train_test_split
 import torch.nn as nn
@@ -30,7 +31,7 @@ X_val = (np.transpose(X_val, (0,3,1,2)))
 
 BATCH_SIZE = 128
 epochs = [10, 10]
-lr = [0.001, 0.0001]
+lr = [0.0001, 0.00001]
 
 class DepthwiseBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -85,5 +86,6 @@ class Cifar10_Dws_CNN(nn.Module):
 net = Cifar10_Dws_CNN()
 
 common.create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, 
-                X_val = X_val, y_val = y_val, BATCH_SIZE = BATCH_SIZE, 
-                epochs = epochs, lr = lr, max_acc_drop = max_acc_drop)
+                X_val = X_val, y_val = y_val, pretrained = False, 
+                BATCH_SIZE = BATCH_SIZE, method = method, epochs = epochs, 
+                lr = lr, max_acc_drop = max_acc_drop)
