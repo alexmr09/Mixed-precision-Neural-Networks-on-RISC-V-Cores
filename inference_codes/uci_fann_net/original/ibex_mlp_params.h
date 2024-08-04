@@ -1,15 +1,15 @@
 #ifndef IBEX_MLP_PARAMS_H
 #define IBEX_MLP_PARAMS_H
 
-#define MV1 72
-#define MV2 80
-#define MV3 64
-#define MV4 72
+#define MV1 110
+#define MV2 78
+#define MV3 121
+#define MV4 75
 
-#define SV1 9
+#define SV1 10
 #define SV2 10
-#define SV3 9
-#define SV4 9
+#define SV3 10
+#define SV4 10
 
 #define SB1 0
 #define SB2 0

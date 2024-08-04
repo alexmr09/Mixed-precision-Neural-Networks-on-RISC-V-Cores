@@ -94,17 +94,17 @@ void lenet5_mnist() {
 
 		pcount_enable(1);
 
-		conv2(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
+		conv2(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1, 1);
 		avgpool2(outp_dim1, outp_dim2, out1, out2, POOL_SIZE1, POOL_STRIDE1);
 
-		conv2(outp_dim2, f_dim3, outp_dim3, out2, F2, B2, out3, STRIDE2, pad_3, SB2, MV2, SV2);
+		conv2(outp_dim2, f_dim3, outp_dim3, out2, F2, B2, out3, STRIDE2, pad_3, SB2, MV2, SV2, 1);
 		avgpool2(outp_dim3, outp_dim4, out3, out4, POOL_SIZE2, POOL_STRIDE2);
 
 		flatten(outp_dim4, out4, out5);
 
-		mlp_layer(out5, out6, flatten_dim, DENSE_DIM1, W1, B3, SB3, MV3, SV3);
-		mlp_layer(out6, out7, DENSE_DIM1, DENSE_DIM2, W2, B4, SB4, MV4, SV4);
-		mlp_layer(out7, out, DENSE_DIM2, OUT_DIM, W3, B5, SB5, MV5, SV5);
+		mlp_layer(out5, out6, flatten_dim, DENSE_DIM1, W1, B3, SB3, MV3, SV3, 1);
+		mlp_layer(out6, out7, DENSE_DIM1, DENSE_DIM2, W2, B4, SB4, MV4, SV4, 1);
+		mlp_layer(out7, out, DENSE_DIM2, OUT_DIM, W3, B5, SB5, MV5, SV5, 1);
 
 		pcount_enable(0);
 

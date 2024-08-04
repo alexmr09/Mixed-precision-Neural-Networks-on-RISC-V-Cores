@@ -1,18 +1,18 @@
 #ifndef IBEX_MLP_PARAMS_H
 #define IBEX_MLP_PARAMS_H
 
-#define MV1 2139062143
-#define MV2 1920103026
+#define MV1 1094795585
+#define MV2 1414812756
 
-#define SV1 1352745601
+#define SV1 1217471041
 #define SV2 1217471041
 
 static const int SB1[5] = {
-	135274499, 134225987, 8195, 3, 134217795
+	3, 8195, 1056771, 134225987, 135274499
 };
 
 static const int SB2[1] = {
-	1048579
+	134217731
 };
 
 #endif /* IBEX_MLP_PARAMS_H */

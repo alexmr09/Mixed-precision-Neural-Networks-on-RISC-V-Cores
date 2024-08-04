@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void mlp_layer(int input[], int output[], int num_inputs, int num_outputs, const int weights[][num_inputs], const int bias[], const int bias_shift_mode, const int quantized_multiplier, const int out_shift_rl){
+void mlp_layer(int input[], int output[], int num_inputs, int num_outputs, const int weights[][num_inputs], const int bias[], const int bias_shift_mode, const int quantized_multiplier, const int out_shift_rl, int relu){
 
 	// Compute the output for each neuron
     	int z, w, inp, quant_prod;
@@ -19,8 +19,15 @@ void mlp_layer(int input[], int output[], int num_inputs, int num_outputs, const
         	quant_prod = quantized_multiplier * z + (1 << (out_shift_rl-1));
         	quant_prod = quant_prod >> out_shift_rl;
         
-        	if(quant_prod < 0) quant_prod = 0;
-        	if(quant_prod > 255) quant_prod = 255;
+                if(relu == 1){
+          	    if(quant_prod < 0) quant_prod = 0;
+        	    if(quant_prod > 255) quant_prod = 255;
+                }
+                
+                else{
+                    if(quant_prod < -128) quant_prod = -128;
+        	    if(quant_prod > 127) quant_prod = 127;
+                }
         	
         	output[i] = quant_prod;
  	}

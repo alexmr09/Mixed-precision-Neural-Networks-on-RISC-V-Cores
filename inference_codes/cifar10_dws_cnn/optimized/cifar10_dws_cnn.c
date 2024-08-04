@@ -117,8 +117,8 @@ void cifar10_dws_cnn() {
 	int wout4 = ((wout3 - FILTER4+ 2 * PAD_LR4)/STRIDE4)+1;
 
 	int dout5 = dout4;
-	int hout5 = hout4/POOL_STRIDE1;
-	int wout5 = wout4/POOL_STRIDE1;
+	int hout5 = ((hout4 - POOL_SIZE1)/POOL_STRIDE1) + 1;
+	int wout5 = ((wout4 - POOL_SIZE1)/POOL_STRIDE1) + 1;
 
 	int dout6 = NUM_FIL5;
 	int hout6 = ((hout5 - FILTER5+ 2 * PAD_TB5)/STRIDE5)+1;
@@ -137,8 +137,8 @@ void cifar10_dws_cnn() {
 	int wout9 = ((wout8 - FILTER8+ 2 * PAD_LR8)/STRIDE8)+1;
 
 	int dout10 = dout9;
-	int hout10 = hout9/POOL_STRIDE2;
-	int wout10 = wout9/POOL_STRIDE2;
+	int hout10 = ((hout9 - POOL_SIZE2)/POOL_STRIDE2) + 1;
+	int wout10 = ((wout9 - POOL_SIZE2)/POOL_STRIDE2) + 1;
 
 	int dout11 = NUM_FIL9;
 	int hout11 = ((hout10 - FILTER9+ 2 * PAD_TB9)/STRIDE9)+1;
@@ -157,8 +157,8 @@ void cifar10_dws_cnn() {
 	int wout14 = ((wout13 - FILTER12+ 2 * PAD_LR12)/STRIDE12)+1;
 
 	int dout15 = dout14;
-	int hout15 = hout14/POOL_STRIDE3;
-	int wout15 = wout14/POOL_STRIDE3;
+	int hout15 = ((hout14 - POOL_SIZE3)/POOL_STRIDE3) + 1;
+	int wout15 = ((wout14 - POOL_SIZE3)/POOL_STRIDE3) + 1;
 
 	int flatten_dim = dout15 * hout15 * wout15;
 
@@ -251,22 +251,22 @@ void cifar10_dws_cnn() {
 		pcount_enable(1);
 
 		dw_conv_opt_1ch(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
-		pw_conv_2bits(outp_dim1, f_dim2, outp_dim2, out1, F2, B2, out2, STRIDE2, pad_2, SB2, MV2, SV2);
+		pw_conv_8bits(outp_dim1, f_dim2, outp_dim2, out1, F2, B2, out2, STRIDE2, pad_2, SB2, MV2, SV2);
 		dw_conv_opt(outp_dim2, f_dim3, outp_dim3, out2, F3, B3, out3, STRIDE3, pad_3, SB3, MV3, SV3);
-		pw_conv_8bits(outp_dim3, f_dim4, outp_dim4, out3, F4, B4, out4, STRIDE4, pad_4, SB4, MV4, SV4);
-		maxpool2_compressed(outp_dim4, outp_dim5, out4, out5, POOL_SIZE1, POOL_STRIDE1);
+		pw_conv_4bits(outp_dim3, f_dim4, outp_dim4, out3, F4, B4, out4, STRIDE4, pad_4, SB4, MV4, SV4);
+		maxpool2_compressed_unsigned(outp_dim4, outp_dim5, out4, out5, POOL_SIZE1, POOL_STRIDE1);
 
 		dw_conv_opt(outp_dim5, f_dim6, outp_dim6, out5, F5, B5, out6, STRIDE5, pad_6, SB5, MV5, SV5);
-		pw_conv_2bits(outp_dim6, f_dim7, outp_dim7, out6, F6, B6, out7, STRIDE6, pad_7, SB6, MV6, SV6);
+		pw_conv_8bits(outp_dim6, f_dim7, outp_dim7, out6, F6, B6, out7, STRIDE6, pad_7, SB6, MV6, SV6);
 		dw_conv_opt(outp_dim7, f_dim8, outp_dim8, out7, F7, B7, out8, STRIDE7, pad_8, SB7, MV7, SV7);
-		pw_conv_8bits(outp_dim8, f_dim9, outp_dim9, out8, F8, B8, out9, STRIDE8, pad_9, SB8, MV8, SV8);
-		maxpool2_compressed(outp_dim9, outp_dim10, out9, out10, POOL_SIZE2, POOL_STRIDE2);
+		pw_conv_4bits(outp_dim8, f_dim9, outp_dim9, out8, F8, B8, out9, STRIDE8, pad_9, SB8, MV8, SV8);
+		maxpool2_compressed_unsigned(outp_dim9, outp_dim10, out9, out10, POOL_SIZE2, POOL_STRIDE2);
 
 		dw_conv_opt(outp_dim10, f_dim11, outp_dim11, out10, F9, B9, out11, STRIDE9, pad_11, SB9, MV9, SV9);
 		pw_conv_8bits(outp_dim11, f_dim12, outp_dim12, out11, F10, B10, out12, STRIDE10, pad_12, SB10, MV10, SV10);
 		dw_conv_opt(outp_dim12, f_dim13, outp_dim13, out12, F11, B11, out13, STRIDE11, pad_13, SB11, MV11, SV11);
 		pw_conv_8bits(outp_dim13, f_dim14, outp_dim14, out13, F12, B12, out14, STRIDE12, pad_14, SB12, MV12, SV12);
-		maxpool2_compressed(outp_dim14, outp_dim15, out14, out15, POOL_SIZE3, POOL_STRIDE3);
+		maxpool2_compressed_unsigned(outp_dim14, outp_dim15, out14, out15, POOL_SIZE3, POOL_STRIDE3);
 
 		flatten(outp_dim15, out15, out16);
 

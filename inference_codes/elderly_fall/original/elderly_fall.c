@@ -22,8 +22,8 @@ void elderly_fall() {
 
 		pcount_enable(1);
 
-		mlp_layer(inp, y1, IN_DIM, HIDDEN_DIM1, W1, B1, SB1, MV1, SV1);
-		mlp_layer(y1, out, HIDDEN_DIM1, OUT_DIM, W2, B2, SB2, MV2, SV2);
+		mlp_layer(inp, y1, IN_DIM, HIDDEN_DIM1, W1, B1, SB1, MV1, SV1, 1);
+		mlp_layer(y1, out, HIDDEN_DIM1, OUT_DIM, W2, B2, SB2, MV2, SV2, 1);
 
 		pcount_enable(0);
 

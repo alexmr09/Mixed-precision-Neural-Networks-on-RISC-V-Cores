@@ -1,7 +1,7 @@
 #ifndef CONV2D_H
 #define CONV2D_H
 
-void conv2(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], const int fil[fil_dim[0]][fil_dim[1]][fil_dim[2]][fil_dim[3]], const int bias[fil_dim[0]], int out[out_dim[0]][out_dim[1]][out_dim[2]], int strides, int pad[4], const int bias_shift_mode, const int quantized_multiplier, const int out_shift_rl){
+void conv2(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], const int fil[fil_dim[0]][fil_dim[1]][fil_dim[2]][fil_dim[3]], const int bias[fil_dim[0]], int out[out_dim[0]][out_dim[1]][out_dim[2]], int strides, int pad[4], const int bias_shift_mode, const int quantized_multiplier, const int out_shift_rl, int relu){
 
 	int i, j, k, m, n, p, res, k1, k2, str1, str2, quant_prod;
 	
@@ -27,8 +27,16 @@ void conv2(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_dim[0]][in_
                     		quant_prod = quantized_multiplier * res + (1 << (out_shift_rl-1));
         			quant_prod = quant_prod >> out_shift_rl;
         
-        			if(quant_prod < 0) quant_prod = 0;
-        			if(quant_prod > 255) quant_prod = 255;
+        			if(relu == 1){
+          	                    if(quant_prod < 0) quant_prod = 0;
+        	                    if(quant_prod > 255) quant_prod = 255;
+                                }
+                
+                                else{
+                                    if(quant_prod < -128) quant_prod = -128;
+        	                    if(quant_prod > 127) quant_prod = 127;
+                                }
+                                
                     		out[j][k][i] = quant_prod;
             		}
         	}

@@ -93,19 +93,22 @@ void lenet5_mnist() {
 
 		pcount_enable(1);
 
-		conv2_2bits_1ch(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
-		avgpool2_compressed(outp_dim1, outp_dim2, out1, out2, POOL_SIZE1, POOL_STRIDE1);
+		conv2_4bits_1ch(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
+		avgpool2_compressed_unsigned(outp_dim1, outp_dim2, out1, out2, POOL_SIZE1, POOL_STRIDE1);
 
-		conv2_2bits(outp_dim2, f_dim3, outp_dim3, out2, F2, B2, out3, STRIDE2, pad_3, SB2, MV2, SV2);
-		avgpool2_compressed(outp_dim3, outp_dim4, out3, out4, POOL_SIZE2, POOL_STRIDE2);
+		conv2_8bits(outp_dim2, f_dim3, outp_dim3, out2, F2, B2, out3, STRIDE2, pad_3, SB2, MV2, SV2);
+		avgpool2_compressed_unsigned(outp_dim3, outp_dim4, out3, out4, POOL_SIZE2, POOL_STRIDE2);
 
 		flatten(outp_dim4, out4, out5);
 
 		mlp_layer_2bits(out5, out6, flatten_dim, DENSE_DIM1, W1, B3, SB3, MV3, SV3);
 
-		mlp_layer_2bits(out6, out7, DENSE_DIM1, DENSE_DIM2, W2, B4, SB4, MV4, SV4);
+		mlp_layer_8bits(out6, out7, DENSE_DIM1, DENSE_DIM2, W2, B4, SB4, MV4, SV4);
 
-		mlp_layer_2bits(out7, out, DENSE_DIM2, OUT_DIM, W3, B5, SB5, MV5, SV5);
+		mlp_layer_8bits(out7, out, DENSE_DIM2, OUT_DIM, W3, B5, SB5, MV5, SV5);
+
+		pcount_enable(0);
+
 		puts("Output Layer Values:\n");
 		for(int i = 0; i < OUT_DIM; i++) {
 			puthex((out[i] & 0xFF000000) >> 24);

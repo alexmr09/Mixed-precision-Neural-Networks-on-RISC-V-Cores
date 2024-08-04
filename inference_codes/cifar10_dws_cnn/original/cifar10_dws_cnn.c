@@ -251,27 +251,27 @@ void cifar10_dws_cnn() {
 
 		pcount_enable(1);
 
-		dw_conv(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
-		pw_conv(outp_dim1, f_dim2, outp_dim2, out1, F2, B2, out2, STRIDE2, pad_2, SB2, MV2, SV2);
-		dw_conv(outp_dim2, f_dim3, outp_dim3, out2, F3, B3, out3, STRIDE3, pad_3, SB3, MV3, SV3);
-		pw_conv(outp_dim3, f_dim4, outp_dim4, out3, F4, B4, out4, STRIDE4, pad_4, SB4, MV4, SV4);
+		dw_conv(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1, 1);
+		pw_conv(outp_dim1, f_dim2, outp_dim2, out1, F2, B2, out2, STRIDE2, pad_2, SB2, MV2, SV2, 1);
+		dw_conv(outp_dim2, f_dim3, outp_dim3, out2, F3, B3, out3, STRIDE3, pad_3, SB3, MV3, SV3, 1);
+		pw_conv(outp_dim3, f_dim4, outp_dim4, out3, F4, B4, out4, STRIDE4, pad_4, SB4, MV4, SV4, 1);
 		maxpool2(outp_dim4, outp_dim5, out4, out5, POOL_SIZE1, POOL_STRIDE1);
 
-		dw_conv(outp_dim5, f_dim6, outp_dim6, out5, F5, B5, out6, STRIDE5, pad_6, SB5, MV5, SV5);
-		pw_conv(outp_dim6, f_dim7, outp_dim7, out6, F6, B6, out7, STRIDE6, pad_7, SB6, MV6, SV6);
-		dw_conv(outp_dim7, f_dim8, outp_dim8, out7, F7, B7, out8, STRIDE7, pad_8, SB7, MV7, SV7);
-		pw_conv(outp_dim8, f_dim9, outp_dim9, out8, F8, B8, out9, STRIDE8, pad_9, SB8, MV8, SV8);
+		dw_conv(outp_dim5, f_dim6, outp_dim6, out5, F5, B5, out6, STRIDE5, pad_6, SB5, MV5, SV5, 1);
+		pw_conv(outp_dim6, f_dim7, outp_dim7, out6, F6, B6, out7, STRIDE6, pad_7, SB6, MV6, SV6, 1);
+		dw_conv(outp_dim7, f_dim8, outp_dim8, out7, F7, B7, out8, STRIDE7, pad_8, SB7, MV7, SV7, 1);
+		pw_conv(outp_dim8, f_dim9, outp_dim9, out8, F8, B8, out9, STRIDE8, pad_9, SB8, MV8, SV8, 1);
 		maxpool2(outp_dim9, outp_dim10, out9, out10, POOL_SIZE2, POOL_STRIDE2);
 
-		dw_conv(outp_dim10, f_dim11, outp_dim11, out10, F9, B9, out11, STRIDE9, pad_11, SB9, MV9, SV9);
-		pw_conv(outp_dim11, f_dim12, outp_dim12, out11, F10, B10, out12, STRIDE10, pad_12, SB10, MV10, SV10);
-		dw_conv(outp_dim12, f_dim13, outp_dim13, out12, F11, B11, out13, STRIDE11, pad_13, SB11, MV11, SV11);
-		pw_conv(outp_dim13, f_dim14, outp_dim14, out13, F12, B12, out14, STRIDE12, pad_14, SB12, MV12, SV12);
+		dw_conv(outp_dim10, f_dim11, outp_dim11, out10, F9, B9, out11, STRIDE9, pad_11, SB9, MV9, SV9, 1);
+		pw_conv(outp_dim11, f_dim12, outp_dim12, out11, F10, B10, out12, STRIDE10, pad_12, SB10, MV10, SV10, 1);
+		dw_conv(outp_dim12, f_dim13, outp_dim13, out12, F11, B11, out13, STRIDE11, pad_13, SB11, MV11, SV11, 1);
+		pw_conv(outp_dim13, f_dim14, outp_dim14, out13, F12, B12, out14, STRIDE12, pad_14, SB12, MV12, SV12, 1);
 		maxpool2(outp_dim14, outp_dim15, out14, out15, POOL_SIZE3, POOL_STRIDE3);
 
 		flatten(outp_dim15, out15, out16);
 
-		mlp_layer(out16, out, flatten_dim, OUT_DIM, W1, B13, SB13, MV13, SV13);
+		mlp_layer(out16, out, flatten_dim, OUT_DIM, W1, B13, SB13, MV13, SV13, 1);
 		pcount_enable(0);
 
 		puts("Output Layer Values:\n");

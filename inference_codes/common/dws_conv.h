@@ -4,7 +4,7 @@
 void pw_conv(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], 
 	      const int fil[fil_dim[0]][fil_dim[3]], const int bias[], 
 	      int out[out_dim[0]][out_dim[1]][out_dim[2]], int strides, int pad[], 
-              const int bias_shift_mode, const int quantized_multiplier, const int out_shift_rl){
+              const int bias_shift_mode, const int quantized_multiplier, const int out_shift_rl, int relu){
 
      int i, j, k, m, res, str1, str2, quant_prod;
 
@@ -23,8 +23,17 @@ void pw_conv(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_dim[0]][i
                       }
                       quant_prod = quantized_multiplier * res + (1 << (out_shift_rl -1));
         	      quant_prod = quant_prod >> (out_shift_rl);
-        	      if(quant_prod < 0) quant_prod = 0;
-        	      if(quant_prod > 255) quant_prod = 255;
+        	      
+        	      if(relu == 1){
+          	          if(quant_prod < 0) quant_prod = 0;
+        	          if(quant_prod > 255) quant_prod = 255;
+                      }
+                
+                      else{
+                          if(quant_prod < -128) quant_prod = -128;
+        	          if(quant_prod > 127) quant_prod = 127;
+                      }
+                      
                       out[j][k][i] = quant_prod;
 	       }
           }
@@ -32,9 +41,9 @@ void pw_conv(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_dim[0]][i
 }
 
 void dw_conv(int in_dim[3], int depthwise_fil_dim[4], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], 
-            const int depthwise_fil[depthwise_fil_dim[0]][depthwise_fil_dim[1]][depthwise_fil_dim[2]][1], const int bias[], 
-			int out[out_dim[0]][out_dim[1]][out_dim[2]], int strides, int pad[], 
-            const int bias_shift_mode, const int depthwise_multiplier, const int depthwise_out_shift_rl){
+            const int depthwise_fil[depthwise_fil_dim[0]][depthwise_fil_dim[1]][depthwise_fil_dim[2]][1], 
+            const int bias[], int out[out_dim[0]][out_dim[1]][out_dim[2]], int strides, int pad[], 
+            const int bias_shift_mode, const int depthwise_multiplier, const int depthwise_out_shift_rl, int relu){
     
 	int i, j, k, n, p, res, k1, k2, str1, str2, quant_prod;
 
@@ -58,11 +67,37 @@ void dw_conv(int in_dim[3], int depthwise_fil_dim[4], int out_dim[3], int inp[in
 					}
 				}
 				quant_prod = depthwise_multiplier * res + (1 << (depthwise_out_shift_rl -1));
-		        quant_prod = quant_prod >> (depthwise_out_shift_rl);
-				if(quant_prod < 0) quant_prod = 0;
-        		if(quant_prod > 255) quant_prod = 255;
-                out[j][k][i] = quant_prod;
-            }
+		                quant_prod = quant_prod >> (depthwise_out_shift_rl);
+				
+				if(relu == 1){
+          	                    if(quant_prod < 0) quant_prod = 0;
+        	                    if(quant_prod > 255) quant_prod = 255;
+                                }
+                
+                                else{
+                                    if(quant_prod < -128) quant_prod = -128;
+        	                    if(quant_prod > 127) quant_prod = 127;
+                                }
+                                
+                                out[j][k][i] = quant_prod;
+                        }
+		}
+	}
+}
+
+
+void shortcut(int mat_dim[3], int inA[mat_dim[0]][mat_dim[1]][mat_dim[2]], int inB[mat_dim[0]][mat_dim[1]][mat_dim[2]], 
+		int out[mat_dim[0]][mat_dim[1]][mat_dim[2]]){
+	
+	int sum;
+	for(int i = 0; i < mat_dim[0]; i++){
+		for(int j = 0; j < mat_dim[1]; j++){
+			for(int k = 0; k < mat_dim[2]; k++){
+				sum = inA[i][j][k] + inB[i][j][k];
+				if(sum < -128) sum = -128;
+        		if(sum > 127) sum = 127;
+                out[i][j][k] = sum;
+			}
 		}
 	}
 }

@@ -225,7 +225,64 @@ void conv2_2bits_1ch(int in_dim[3], int fil_dim[4], int out_dim[3], int inp[in_d
     	}
 }
 
-void maxpool2_compressed(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], int out[out_dim[0]][out_dim[1]][out_dim[2]], int pool_size, int strides) {
+void maxpool2_compressed_signed(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], 
+                                    int out[out_dim[0]][out_dim[1]][out_dim[2]], int pool_size, int strides) {
+
+	int i, j, m, n, d, k1, k2, str1, str2, c;
+	int8_t value1, value2, value3, value4;
+	int8_t max_value1, max_value2, max_value3, max_value4;
+	
+    	for (d = 0; d < out_dim[2]; d++) {
+    		str1 = 0;
+        	for (i = 0; i < out_dim[0]; i++) {
+        		if (i != 0) str1 += strides;
+        		str2 = 0;
+            		for (j = 0; j < out_dim[1]; j++) {
+            			if (j != 0) str2 += strides;
+                		max_value1 = -128;
+                		max_value2 = -128;
+                		max_value3 = -128;
+                		max_value4 = -128;
+
+                		for (m = 0; m < pool_size; m++) {
+                    			for (n = 0; n < pool_size; n++) {
+                    				k1 = str1 + m;
+                    				k2 = str2 + n;
+                    				if (k1 >= 0 && k2 >=0 && k1 < in_dim[0] && k2 < in_dim[1]){
+                         				value1 = (inp[k1][k2][d] & 0xFF000000) >> 24;
+                         				value2 = (inp[k1][k2][d] & 0x00FF0000) >> 16;
+                         				value3 = (inp[k1][k2][d] & 0x0000FF00) >> 8;
+                         				value4 = inp[k1][k2][d] & 0x000000FF;
+                         				
+                        				if (value1 > max_value1) {
+                            					max_value1 = value1;
+                        				}
+                        				
+                        				if (value2 > max_value2) {
+                        					max_value2 = value2;
+                        				}
+                        				
+                        				if (value3 > max_value3) {
+                            					max_value3 = value3;
+                        				}
+                        				
+                        				if (value4 > max_value4) {
+                        					max_value4 = value4;
+                        				}
+                        				
+                        			}
+                    			}
+                		}
+                		
+                		c = ((max_value1 & 0xFF) << 24)|((max_value2 & 0xFF) << 16)|((max_value3 & 0xFF) << 8)|((max_value4 & 0xFF));
+                		out[i][j][d] = c;
+            		}
+        	}
+    	}	
+}
+
+void maxpool2_compressed_unsigned(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], 
+                                int out[out_dim[0]][out_dim[1]][out_dim[2]], int pool_size, int strides) {
 
 	int i, j, m, n, d, k1, k2, str1, str2;
 	uint32_t value1, value2, value3, value4;
@@ -280,7 +337,57 @@ void maxpool2_compressed(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_di
     	}	
 }
 
-void avgpool2_compressed(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], int out[out_dim[0]][out_dim[1]][out_dim[2]], int pool_size, int strides) {
+void avgpool2_compressed_signed(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], int out[out_dim[0]][out_dim[1]][out_dim[2]], int pool_size, int strides) {
+
+	int i, j, m, n, d, k1, k2, str1, str2;
+	int avg_value1, avg_value2, avg_value3, avg_value4;
+        int8_t v1, v2, v3, v4;
+
+    	for (d = 0; d < out_dim[2]; d++) {
+    		str1 = -strides;
+        	for (i = 0; i < out_dim[0]; i++) {
+        		str1 += strides;
+        		str2 = -strides;
+            		for (j = 0; j < out_dim[1]; j++) {
+            			str2 += strides;
+                		avg_value1 = 0;
+                		avg_value2 = 0;
+                		avg_value3 = 0;
+                		avg_value4 = 0;
+
+                		for (m = 0; m < pool_size; m++) {
+                    			for (n = 0; n < pool_size; n++) {
+                    				k1 = str1 + m;
+                    				k2 = str2 + n;
+                    				if (k1 >= 0 && k2 >=0 && k1 < in_dim[0] && k2 < in_dim[1]){
+                    				        v1 = (inp[k1][k2][d] & 0xFF000000) >> 24;
+                         				avg_value1 += v1;
+                         				
+                         				v2 = (inp[k1][k2][d] & 0x00FF0000) >> 16;
+                         				avg_value2 += v2;
+                         				
+                         				v3 = (inp[k1][k2][d] & 0x0000FF00) >> 8;
+                         				avg_value3 += v3;
+                         				
+                         				v4 = inp[k1][k2][d]  & 0x000000FF;
+                         				avg_value4 += v4;
+                         				
+                        			}
+                    			}
+                		}
+                		
+                		avg_value1 = avg_value1 / (pool_size * pool_size);
+                		avg_value2 = avg_value2 / (pool_size * pool_size);
+                		avg_value3 = avg_value3 / (pool_size * pool_size);
+                		avg_value4 = avg_value4 / (pool_size * pool_size);
+                		
+                		out[i][j][d] = (((avg_value1 & 0xFF) << 24) | ((avg_value2 & 0xFF)  << 16) | ((avg_value3 & 0xFF)  << 8) | ((avg_value4 & 0xFF)));
+            		}
+        	}
+    	}
+}
+
+void avgpool2_compressed_unsigned(int in_dim[3], int out_dim[3], int inp[in_dim[0]][in_dim[1]][in_dim[2]], int out[out_dim[0]][out_dim[1]][out_dim[2]], int pool_size, int strides) {
 
 	int i, j, m, n, d, k1, k2, str1, str2;
 	int avg_value1, avg_value2, avg_value3, avg_value4;

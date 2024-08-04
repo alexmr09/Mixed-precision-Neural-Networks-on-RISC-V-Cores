@@ -1,33 +1,33 @@
 #ifndef IBEX_CNN_PARAMS_H
 #define IBEX_CNN_PARAMS_H
 
-#define MV1 75
-#define MV2 112
-#define MV3 82
-#define MV4 75
-#define MV5 87
-#define MV6 76
-#define MV7 111
-#define MV8 95
-#define MV9 95
-#define MV10 117
-#define MV11 68
-#define MV12 91
-#define MV13 77
+#define MV1 67
+#define MV2 109
+#define MV3 80
+#define MV4 66
+#define MV5 69
+#define MV6 82
+#define MV7 95
+#define MV8 89
+#define MV9 110
+#define MV10 82
+#define MV11 80
+#define MV12 72
+#define MV13 65
 
 #define SV1 15
-#define SV2 7
+#define SV2 10
 #define SV3 15
 #define SV4 14
 #define SV5 14
-#define SV6 8
-#define SV7 15
+#define SV6 7
+#define SV7 14
 #define SV8 15
-#define SV9 15
-#define SV10 16
-#define SV11 15
-#define SV12 15
-#define SV13 21
+#define SV9 14
+#define SV10 15
+#define SV11 14
+#define SV12 14
+#define SV13 19
 
 #define SB1 0
 #define SB2 0

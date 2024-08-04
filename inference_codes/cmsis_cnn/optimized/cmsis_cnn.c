@@ -114,13 +114,13 @@ void cmsis_cnn() {
 
 		pcount_enable(1);
 
-		conv2_8bits_1ch(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
+		conv2_2bits_1ch(inp_dim, f_dim1, outp_dim1, in, F1, B1, out1, STRIDE1, pad_1, SB1, MV1, SV1);
 		maxpool2_compressed(outp_dim1, outp_dim2, out1, out2, POOL_SIZE1, POOL_STRIDE1);
 
-		conv2_8bits(outp_dim2, f_dim3, outp_dim3, out2, F2, B2, out3, STRIDE2, pad_3, SB2, MV2, SV2);
+		conv2_2bits(outp_dim2, f_dim3, outp_dim3, out2, F2, B2, out3, STRIDE2, pad_3, SB2, MV2, SV2);
 		maxpool2_compressed(outp_dim3, outp_dim4, out3, out4, POOL_SIZE2, POOL_STRIDE2);
 
-		conv2_2bits(outp_dim4, f_dim5, outp_dim5, out4, F3, B3, out5, STRIDE3, pad_5, SB3, MV3, SV3);
+		conv2_8bits(outp_dim4, f_dim5, outp_dim5, out4, F3, B3, out5, STRIDE3, pad_5, SB3, MV3, SV3);
 		maxpool2_compressed(outp_dim5, outp_dim6, out5, out6, POOL_SIZE3, POOL_STRIDE3);
 
 		flatten(outp_dim6, out6, out7);

@@ -6,7 +6,7 @@
 
 # Name of the program $(PROGRAM).c will be added as a source file
 
-PROGRAM = elderly_fall
+PROGRAM = mcunet_vww
 PROGRAM_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 # Any extra source files to include in the build. Use the upper case .S
 # extension for assembly files

@@ -26,10 +26,10 @@ void uci_fann_net() {
 
 		pcount_enable(1);
 
-		mlp_layer(inp, y1, IN_DIM, HIDDEN_DIM1, W1, B1, SB1, MV1, SV1);
-		mlp_layer(y1, y2, HIDDEN_DIM1, HIDDEN_DIM2, W2, B2, SB2, MV2, SV2);
-		mlp_layer(y2, y3, HIDDEN_DIM2, HIDDEN_DIM3, W3, B3, SB3, MV3, SV3);
-		mlp_layer(y3, out, HIDDEN_DIM3, OUT_DIM, W4, B4, SB4, MV4, SV4);
+		mlp_layer(inp, y1, IN_DIM, HIDDEN_DIM1, W1, B1, SB1, MV1, SV1, 1);
+		mlp_layer(y1, y2, HIDDEN_DIM1, HIDDEN_DIM2, W2, B2, SB2, MV2, SV2, 1);
+		mlp_layer(y2, y3, HIDDEN_DIM2, HIDDEN_DIM3, W3, B3, SB3, MV3, SV3, 1);
+		mlp_layer(y3, out, HIDDEN_DIM3, OUT_DIM, W4, B4, SB4, MV4, SV4, 1);
 
 		pcount_enable(0);
 

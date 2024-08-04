@@ -1,17 +1,17 @@
 #ifndef IBEX_CNN_PARAMS_H
 #define IBEX_CNN_PARAMS_H
 
-#define MV1 96
-#define MV2 95
-#define MV3 82
-#define MV4 89
-#define MV5 65
+#define MV1 84
+#define MV2 74
+#define MV3 116
+#define MV4 103
+#define MV5 86
 
-#define SV1 9
-#define SV2 9
+#define SV1 12
+#define SV2 15
 #define SV3 9
-#define SV4 9
-#define SV5 9
+#define SV4 16
+#define SV5 16
 
 #define SB1 0
 #define SB2 0
