@@ -28,24 +28,25 @@ On the subfolders of this repository, you can check some simple examples that de
 ```
 source .venv/bin/activate
 source setup_env.sh
-python3 <folder_name>/<python_script_name>.py --max_acc_drop <max_acc_drop> --device <device>
+python3 <folder_name>/<python_script_name>.py --max_acc_drop <max_acc_drop> --device <device> --method <method>
 ```
 
 #### Parameters Explained
 
 - **max_acc_drop**: This parameter allows the user to define the maximum acceptable accuracy degradation for the Quantized Model compared to the full-precision model. When specified, a Binary search algorithm is used to explore the design space. If this parameter is not defined, an Exhaustive search approach is employed (default).
 - **device**: Specifies the target device for running the model. The available options are CPU (default) and CUDA.
-
+- **method**: Determines the quantization technique to be applied, whether Post Training Quantization (PTQ), Quantization Aware Training (QAT), or both, for fine-tuning the model's parameters (default is QAT).
+  
 #### Exhaustive DSE example
 
 ```
-python3 elderly_fall/elderly_fall.py --device 'cuda'
+python3 elderly_fall/elderly_fall.py --device 'cuda' --method 'ptq'
 ```
 
 #### Binary DSE example
 
 ```
-python3 elderly_fall/elderly_fall.py --max_acc_drop 2 --device 'cpu'
+python3 elderly_fall/elderly_fall.py --max_acc_drop 2 --device 'cpu' --method 'both'
 ```
 
 ## How to test a new model
@@ -61,6 +62,11 @@ import common
 # Initialize the environment and get the name
 name = init_utils.initialize_environment(__file__)
 args = init_utils.get_args()
+
+# Set arguments from command line
+max_acc_drop = args.max_acc_drop
+device = args.device
+method = args.method
 ```
 
 2. **Import and Preprocess Dataset**: Import your dataset and preprocess it. Ensure to split it into training, testing, and (optionally) validation subsets. Save these subsets as numpy arrays.
@@ -71,10 +77,16 @@ args = init_utils.get_args()
    
 ```python
 common.create_ibex_qnn(net, name, device, X_train, y_train, X_test, y_test, 
-                X_val = X_val, y_val = y_val, BATCH_SIZE = BATCH_SIZE, 
-                epochs = epochs, lr = lr, max_acc_drop = max_acc_drop)
+                       pretrained = False, method = method, BATCH_SIZE = BATCH_SIZE, 
+                       epochs = epochs, lr = lr, max_acc_drop = max_acc_drop)
 ```
 
 #### Notes
-- The parameters for epochs and learning rate can be either single values or lists of numbers, allowing for fine-tuning of the model.
-- Currently, the provided scripts do not support models with Residual connections.
+- The parameters for epochs and learning rate can be either single values or lists of numbers, allowing for further fine-tuning of the model.
+- Indicate for each model whether it is pretrained.
+- For Residual networks, include a *shortcut* attribute where necessary (like in this [example](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/blob/main/mpq/mcunet_vww/define_network.py)).
+- For the [mcunet_vww](https://github.com/alexmr09/Mixed-precision-Neural-Networks-on-RISC-V-Cores/tree/main/mpq/mcunet_vww):
+  ```
+  pip install setuptools==68.1.2
+  pip install git+https://github.com/mit-han-lab/mcunet
+  ```  
