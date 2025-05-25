@@ -335,13 +335,5 @@ neural networks for efficient integer-arithmetic-only inference, 2017.
 ### Citation
 If you find our project helpful, please consider citing our paper:
 ```
-@misc{mixedICCAD24,
-      title={Mixed-precision Neural Networks on RISC-V Cores: ISA extensions for Multi-Pumped Soft SIMD Operations}, 
-      author={Giorgos Armeniakos and Alexis Maras and Sotirios Xydis and Dimitrios Soudris},
-      year={2024},
-      eprint={2407.14274},
-      archivePrefix={arXiv},
-      primaryClass={cs.AR},
-      url={https://arxiv.org/abs/2407.14274}, 
-}
+Giorgos Armeniakos, Alexis Maras, Sotirios Xydis, and Dimitrios Soudris. 2025. Mixed-precision Neural Networks on RISC-V Cores: ISA extensions for Multi-Pumped Soft SIMD Operations. In Proceedings of the 43rd IEEE/ACM International Conference on Computer-Aided Design (ICCAD '24). Association for Computing Machinery, New York, NY, USA, Article 235, 1–9. https://doi.org/10.1145/3676536.3676840
 ```
