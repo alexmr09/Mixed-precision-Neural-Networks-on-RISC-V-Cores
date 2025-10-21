@@ -332,13 +332,7 @@ Divide Wait:                0
 Howard, Hartwig Adam, and Dmitry Kalenichenko. Quantization and training of
 neural networks for efficient integer-arithmetic-only inference, 2017.
 
-### Citation
-If you find our project helpful, please consider citing the following works:
-Here’s a clean and visually appealing **GitHub Markdown** version of your citation section — optimized for README files:
-
----
-
-## 📖 Citation
+## Citation
 
 If you find our project helpful, please consider citing the following works:
 
