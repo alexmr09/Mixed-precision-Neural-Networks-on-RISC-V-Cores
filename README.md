@@ -333,7 +333,23 @@ Howard, Hartwig Adam, and Dmitry Kalenichenko. Quantization and training of
 neural networks for efficient integer-arithmetic-only inference, 2017.
 
 ### Citation
-If you find our project helpful, please consider citing our paper:
-```
-Giorgos Armeniakos, Alexis Maras, Sotirios Xydis, and Dimitrios Soudris. 2025. Mixed-precision Neural Networks on RISC-V Cores: ISA extensions for Multi-Pumped Soft SIMD Operations. In Proceedings of the 43rd IEEE/ACM International Conference on Computer-Aided Design (ICCAD '24). Association for Computing Machinery, New York, NY, USA, Article 235, 1–9. https://doi.org/10.1145/3676536.3676840
-```
+If you find our project helpful, please consider citing the following works:
+Here’s a clean and visually appealing **GitHub Markdown** version of your citation section — optimized for README files:
+
+---
+
+## 📖 Citation
+
+If you find our project helpful, please consider citing the following works:
+
+**Giorgos Armeniakos**, **Alexis Maras**, **Sotirios Xydis**, and **Dimitrios Soudris**.
+*Mixed-Precision Neural Networks on RISC-V Cores: ISA Extensions for Multi-Pumped Soft SIMD Operations.*
+In *Proceedings of the 43rd IEEE/ACM International Conference on Computer-Aided Design (ICCAD '24)*.
+Association for Computing Machinery, New York, NY, USA, Article 235, 1–9.
+[https://doi.org/10.1145/3676536.3676840](https://doi.org/10.1145/3676536.3676840)
+
+
+**G. Armeniakos**, **A. Maras**, **S. Xydis**, and **D. Soudris**.
+*MaRVIn: A Cross-Layer Mixed-Precision RISC-V Framework for DNN Inference, from ISA Extension to Hardware Acceleration.*
+*IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, 2025.
+[https://doi.org/10.1109/TCAD.2025.3615505](https://doi.org/10.1109/TCAD.2025.3615505)
